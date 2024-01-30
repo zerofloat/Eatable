@@ -1,1 +1,3 @@
-# bella's recipe generator
+# Eatable
+
+## Randomly generate recipes in just a few clicks!
