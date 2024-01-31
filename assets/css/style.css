@@ -14,3 +14,10 @@ body {
     background-color: var( --main-bg-color);
     color: var(--dark-txt-color);
 }
+
+/*search bar styling*/
+.btn {
+    color: #ffffff;
+    background-color: #f15b40;
+    border-style: none;
+}
