@@ -1,23 +1,61 @@
+/* import font starts */
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
 
 :root {
     --main-bg-color: #ffd372;
     --dark-txt-color: #1e1e1e;
-    --light-txt-color: #ffffff;
+    --light-txt-color: #d2bdbd;
     --accent-txt-color: #f15b40;
     --main-btn-bg: #f15b40;
     --secondary-btn-bg: #fef7e6;
+    --button-border-radius: 10px;
+    --button-padding: 10px 20px;
 }
+
+/* body */
 
 body {
     font-family: 'Open Sans', sans-serif;
-    background-color: var( --main-bg-color);
-    color: var(--dark-txt-color);
+    background-color: var( --main-bg-color) !important;
+    color: var(--dark-txt-color) !important;
 }
 
-/*search bar styling*/
+/* all buttons */
+button {
+    border: none;
+    border-radius: var(--button-border-radius) !important;
+    padding: var(--button-padding) !important;
+    transition: transform 0.3s ease; /* Smooth transition for the transform property */
+}
+
+button:hover {
+    transform: scale(1.05); /* Scale the button by 5% on hover */
+    cursor: pointer;
+}
+
+/*search bar button*/
 .btn {
     color: #ffffff;
     background-color: #f15b40;
     border-style: none;
 }
+
+/* header */
+
+header {
+    margin: 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+header img {
+    max-width: 50px;
+    border-radius: 12px;
+}
+
+header button {
+    background-color: var(--secondary-btn-bg);
+}
+
