@@ -1,3 +1,5 @@
+// will only run once the page (DOM) is ready for JavaScript code to execute
+$(document).ready(function () {
 console.log('JS loaded');
 
 var queryURL;
@@ -46,5 +48,13 @@ function getCocktail() {
     queryURL = `www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientCocktail}`;
 }
 
+// Attach a click event listener to the search button to trigger the displayRecipe function
+
+$("#search-button").on('click', function (event) {
+    event.preventDefault();
+    console.log('Clicked');
+});
 
 // &mealType=Breakfast&mealType=Dinner&mealType=Lunch&mealType=Snack&mealType=Teatime
+});
+
