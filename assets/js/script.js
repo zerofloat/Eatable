@@ -4,7 +4,6 @@ console.log('JS loaded');
 
 var queryURL;
 var queryKey;
-var queryID;
 var ingredient;
 var course;
 var mealType;
@@ -13,48 +12,29 @@ var healthLabel;
 var recipe;
 var recipeImg;
 var recipeArray;
-var searchInput;
 
+function getRecipe(ingredientName) {
 
-    //parameters for API call - present meal options in DOM
-    mealType = ['Breakfast', 'Dinner', 'Lunch', 'Snack', 'Teatime'];
+    console.log(ingredientName);
+    queryURL = `https://www.themealdb.com/api/json/v1/1/search.php?f=${ingredientName}`;
+    // queryURL = `www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
     
-    mealQueryString = '&mealType=';
 
-    
-    $('#submit').on('click' , function () {
-        event.preventDefault();
-        searchInput = $('search').val().trim();
-        log(searchInput);
-        
 
-        // API strings
-        queryID = 'cf4c29ad';
-        // queryKey = '7a8da848a7f9a13b96f5cae45923af90'; commented out to prevent accidental rate-limiting
-        queryURL = `https://api.edamam.com/api/recipes/v2?type=public&q=${searchInput}&app_id=${queryID}&app_key=${queryKey}${mealQueryString}${mealType[2]}`;
-
+    // mealType array values to be selected by dropdown/checkboxes
 
     fetch(queryURL)
         .then(function (response) {
             return response.json();
         })
         .then(function (data) {
-            recipeArray = [];
-            // receipeDiv
-            for (let i = 0; i < 1; i++) {
-                recipeEach = data.hits[i];                
-            }
+            console.log(data);})
 
-            recipe = data.hits[0]
-            recipeImg = data.hits[0].recipe.images.LARGE.url;
 
-            console.log(data.hits);
+
+
 
         }
-        )
-    }
-    )
-
 
 
 function getCocktail() {
@@ -63,13 +43,37 @@ function getCocktail() {
     queryURL = `www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientCocktail}`;
 }
 
-// Attach a click event listener to the search button to trigger the displayRecipe function
+function getRec(params) {
+    
+}
+
+// Attach a click event listener to the search button to trigger the getRecipe function
 
 $("#search-button").on('click', function (event) {
     event.preventDefault();
-    console.log('Clicked');
+    getRecipe($('#form-input').val().trim());
+
+    $('#form-input').val("");
 });
+
+
 
 // &mealType=Breakfast&mealType=Dinner&mealType=Lunch&mealType=Snack&mealType=Teatime
-});
+})
 
+
+    //         recipeArray = [];
+    //         // receipeDiv
+    //         for (let i = 0; i < 1; i++) {
+    //             recipeEach = data.hits[i];                
+    //         }
+
+    //         recipe = data.hits[0]
+    //         recipeImg = data.hits[0].recipe.images.LARGE.url;
+
+    //         console.log(data.hits);
+
+    //     }
+    //     )
+    // }
+    // )
