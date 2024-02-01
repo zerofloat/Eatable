@@ -33,6 +33,13 @@ button:hover {
     cursor: pointer;
 }
 
+/*search bar button*/
+.btn {
+    color: #ffffff;
+    background-color: #f15b40;
+    border-style: none;
+}
+
 /* header */
 
 header {
