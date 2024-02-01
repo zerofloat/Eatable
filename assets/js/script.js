@@ -4,7 +4,6 @@ console.log('JS loaded');
 
 var queryURL;
 var queryKey;
-var queryID;
 var ingredient;
 var course;
 var mealType;
@@ -12,34 +11,30 @@ var mealQueryString;
 var healthLabel;
 var recipe;
 var recipeImg;
+var recipeArray;
 
-function getRecipe() {
+function getRecipe(ingredientName) {
 
-    queryID = 'cf4c29ad';
-    // queryKey = '7a8da848a7f9a13b96f5cae45923af90';
+    console.log(ingredientName);
+    queryURL = `https://www.themealdb.com/api/json/v1/1/search.php?f=${ingredientName}`;
+    // queryURL = `www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
+    
+
+
     // mealType array values to be selected by dropdown/checkboxes
-    mealType = ['Breakfast', 'Dinner', 'Lunch', 'Snack', 'Teatime'];
-    ingredient = 'bok choi';
-    mealQueryString = '&mealType=';
-
-
-
-    queryURL = `https://api.edamam.com/api/recipes/v2?type=public&q=${ingredient}&app_id=${queryID}&app_key=${queryKey}${mealQueryString}${mealType[2]}`;
 
     fetch(queryURL)
         .then(function (response) {
             return response.json();
         })
         .then(function (data) {
-            // randomise which recipes are selected from the response with pseudorandom number gen
+            console.log(data);})
 
-            recipeImg = data.hits[0].recipe.images.LARGE.url;
-            // console.log(recipeImg);
-            console.log(data.hits);
+
+
+
 
         }
-        )
-}
 
 
 function getCocktail() {
@@ -48,13 +43,37 @@ function getCocktail() {
     queryURL = `www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientCocktail}`;
 }
 
-// Attach a click event listener to the search button to trigger the displayRecipe function
+function getRec(params) {
+    
+}
+
+// Attach a click event listener to the search button to trigger the getRecipe function
 
 $("#search-button").on('click', function (event) {
     event.preventDefault();
-    console.log('Clicked');
+    getRecipe($('#form-input').val().trim());
+
+    $('#form-input').val("");
 });
+
+
 
 // &mealType=Breakfast&mealType=Dinner&mealType=Lunch&mealType=Snack&mealType=Teatime
-});
+})
 
+
+    //         recipeArray = [];
+    //         // receipeDiv
+    //         for (let i = 0; i < 1; i++) {
+    //             recipeEach = data.hits[i];                
+    //         }
+
+    //         recipe = data.hits[0]
+    //         recipeImg = data.hits[0].recipe.images.LARGE.url;
+
+    //         console.log(data.hits);
+
+    //     }
+    //     )
+    // }
+    // )
