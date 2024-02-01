@@ -15,6 +15,8 @@
 /* body */
 
 body {
+    margin: 30px;
+    height: 100%;
     font-family: 'Open Sans', sans-serif;
     background-color: var( --main-bg-color) !important;
     color: var(--dark-txt-color) !important;
@@ -42,8 +44,7 @@ button:hover {
 
 /* header */
 
-header {
-    margin: 30px;
+header, footer {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -59,3 +60,71 @@ header button {
     background-color: var(--secondary-btn-bg);
 }
 
+/* section */
+
+section {
+    height: 80vh;
+}
+
+/* grid */
+
+#recipe-grid {
+    margin: 40px ;
+    height: 100%;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 350px 350px ;
+    grid-template-areas: 
+    "starter main"
+    "dessert drink"
+    ;
+    
+}
+
+#starter {
+    grid-area: starter;
+    background-color: #198754;}
+
+
+#main {
+    grid-area: main;
+    background-color: #198754;
+}
+
+#dessert {
+    grid-area: dessert;
+    background-color: #198754;
+}
+
+#drink {
+    grid-area: drink;
+    background-color: #198754;}
+
+.recipe-grid-area {
+    border-radius: var(--button-border-radius);
+}
+
+/* footer */
+
+footer a {
+    color: #1e1e1e;
+    font-size: 20px;
+}
+
+/* media query */
+
+@media only screen and (max-width: 760px) {
+    
+    #recipe-grid  {
+        grid-template-columns: 100%;
+        grid-template-rows: 350px 350px 350px 350px;
+        grid-template-areas: 
+        "starter"
+        "main"
+        "dessert"
+        "drink"
+        ;
+    }
+  
+  }
