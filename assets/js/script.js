@@ -14,7 +14,7 @@ $(document).ready(function () {
     var recipeImg;
     var recipeArray;
 
-    function getMeals(ingredientName) {
+    function getMeals(ingredientName, callBack) {
 
         console.log(ingredientName);
 
@@ -30,14 +30,14 @@ $(document).ready(function () {
                 var randomMeal = data.meals[Math.floor(Math.random()*data.meals.length)];
                 console.log(randomMeal);
                 recipeID = randomMeal.idMeal;
-                return recipeID;
+                callBack(recipeID);
+                // return recipeID;
             })
     }
 
-    console.log(recipeID);
 
     // TODO: Get recipeID to return the matching ingredients
-    function getRecipe() {
+    function getRecipe(recipeID) {
         // event.preventDefault();
         recipeQueryURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeID}`;
 
@@ -59,15 +59,12 @@ $(document).ready(function () {
         queryURL = `www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${ingredientCocktail}`;
     }
 
-    function getRec(params) {
-
-    }
 
     // Attach a click event listener to the search button to trigger the getRecipe function
 
     $("#search-button").on('click', function (event) {
         event.preventDefault();
-        getMeals($('#form-input').val().trim());
+        getMeals($('#form-input').val().trim(), getRecipe);
 
         $('#form-input').val("");
     });
