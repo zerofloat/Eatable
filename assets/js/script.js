@@ -1,79 +1,92 @@
 // will only run once the page (DOM) is ready for JavaScript code to execute
 $(document).ready(function () {
-console.log('JS loaded');
+    console.log('JS loaded');
 
-var queryURL;
-var queryKey;
-var ingredient;
-var course;
-var mealType;
-var mealQueryString;
-var healthLabel;
-var recipe;
-var recipeImg;
-var recipeArray;
+    var mealQueryURL;
+    var recipeQueryURL;
+    var queryKey;
+    var ingredient;
+    var course;
+    var mealType;
+    var mealQueryString;
+    var healthLabel;
+    var recipeID;
+    var recipeImg;
+    var recipeArray;
 
-function getRecipe(ingredientName) {
+    function getMeals(ingredientName, callBack) {
 
-    console.log(ingredientName);
-    queryURL = `https://www.themealdb.com/api/json/v1/1/search.php?f=${ingredientName}`;
-    // queryURL = `www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
-    
+        console.log(ingredientName);
+
+        mealQueryURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
+        // queryURL = `www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
+
+        fetch(mealQueryURL)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                console.log(data);
+                var randomMeal = data.meals[Math.floor(Math.random()*data.meals.length)];
+                console.log(randomMeal);
+                recipeID = randomMeal.idMeal;
+                callBack(recipeID);
+                // return recipeID;
+            })
+    }
 
 
-    // mealType array values to be selected by dropdown/checkboxes
+    // TODO: Get recipeID to return the matching ingredients
+    function getRecipe(recipeID) {
+        // event.preventDefault();
+        recipeQueryURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeID}`;
 
-    fetch(queryURL)
+        fetch(recipeQueryURL)
         .then(function (response) {
             return response.json();
         })
         .then(function (data) {
-            console.log(data);})
+            console.log(data);
+        
+        })
+    }
+
+  getRecipe();
+
+    function getCocktail() {
+
+        ingredientCocktail = '';
+        queryURL = `www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${ingredientCocktail}`;
+    }
+
+
+    // Attach a click event listener to the search button to trigger the getRecipe function
+
+    $("#search-button").on('click', function (event) {
+        event.preventDefault();
+        getMeals($('#form-input').val().trim(), getRecipe);
+
+        $('#form-input').val("");
+    });
 
 
 
-
-
-        }
-
-
-function getCocktail() {
-
-    ingredientCocktail = '';
-    queryURL = `www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientCocktail}`;
-}
-
-function getRec(params) {
-    
-}
-
-// Attach a click event listener to the search button to trigger the getRecipe function
-
-$("#search-button").on('click', function (event) {
-    event.preventDefault();
-    getRecipe($('#form-input').val().trim());
-
-    $('#form-input').val("");
-});
-
-
-
-// &mealType=Breakfast&mealType=Dinner&mealType=Lunch&mealType=Snack&mealType=Teatime
+    // &mealType=Breakfast&mealType=Dinner&mealType=Lunch&mealType=Snack&mealType=Teatime
 })
 
 
-    //         recipeArray = [];
-    //         // receipeDiv
-    //         for (let i = 0; i < 1; i++) {
-    //             recipeEach = data.hits[i];                
-    //         }
+//         recipeArray = [];
+//         // receipeDiv
+//         for (let i = 0; i < 1; i++) {
+//             recipeEach = data.hits[i];
+//         }
 
-    //         recipe = data.hits[0]
-    //         recipeImg = data.hits[0].recipe.images.LARGE.url;
+//         recipe = data.hits[0]
+//         recipeImg = data.hits[0].recipe.images.LARGE.url;
 
-    //         console.log(data.hits);
+//         console.log(data.hits);
 
-    //     }
-    //     )
-    // }
-    // )
+//     }
+//     )
+// }
+// )
