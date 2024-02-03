@@ -13,6 +13,7 @@ $(document).ready(function () {
   var recipeID;
   var recipeImg;
   var recipeArray;
+  var dessertImage;
 
   function getMeals(ingredientName, callBack) {
     console.log(ingredientName);
@@ -47,6 +48,7 @@ $(document).ready(function () {
       .then(function (data) {
         console.log(data);
 
+        
         // checks if meals property exists and is not null
         if (data.meals && data.meals.length > 0) {
           //storing meal category in var
@@ -55,19 +57,26 @@ $(document).ready(function () {
 
           // condition to extract if it is a dessert
           if (mealCategory === "Dessert") {
-            // Extracting relevant dessert information from the recipe
-            var recipeImage = data.meals[0].strMealThumb;
+            // clear existing content in #dessert container
+            $("#dessert").children('img').remove();
 
             // updating HTML
-            var dessertImage = $("<img>");
-            dessertImage.attr("src", recipeImage);
-            dessertImage.attr("alt", "Dessert");
+            dessertImage = $("<img>");
+            // dessertImage.attr("src", data.meals[0].strMealThumb);
+            // dessertImage.attr("alt", "Dessert");
+            // dessertImage.css({ height: "300px", width: "300px" });
+            dessertImage.attr({
+              src: data.meals[0].strMealThumb,
+              alt: 'Dessert',
+              height: 300,
+              width: 300
+            })
 
-            $("#dessert .container").prepend(dessertImage);
+            $("#dessert").prepend(dessertImage);
+            $("#dessert #recipe-header").text(data.meals[0].strMeal);
           } else {
             console.log(
-              "Keep searching and find me a recipe with that ingredient !! >_<"
-            );
+              "Keep searching and find me a recipe with that ingredient !! >_<");
             // call getMeals function again to search for more desserts with the same ingredient
             getMeals($("#form-input").val().trim(), getRecipe);
           }
