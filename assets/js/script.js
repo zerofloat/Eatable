@@ -12,7 +12,12 @@ $(document).ready(function () {
     var healthLabel;
     var recipeID;
     var recipeImg;
+    var recipeStr;
+    var recipeInstr;
     var recipeArray;
+    var drinkImg;
+    var drinkQueryURL;
+    var drinkInstr;
 
     function getMeals(ingredientName, callBack) {
 
@@ -47,16 +52,55 @@ $(document).ready(function () {
         })
         .then(function (data) {
             console.log(data);
+            for (let i = 0; i < 4; i++) {
+                // console.log(data.meals[i].strMealThumb);
+                // console.log(data.meals[i].strInstructions);
+                // recipeInstr = $('<p>').text(data.meals[i].strInstructions);
+                
+                recipeImg = $('<img>').attr({
+                    src: data.meals[i].strMealThumb,
+                    width: 300,
+                    height: 300
+                });
+  
+            }
+     
         
         })
     }
 
   getRecipe();
 
-    function getCocktail() {
+    function getDrink(ingredientName) {
 
-        ingredientCocktail = '';
-        queryURL = `www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${ingredientCocktail}`;
+
+        drinkQueryURL = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
+
+        fetch(drinkQueryURL)
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+            $('#drink').children('img').remove();
+            //randomly choose between fetched recipes
+            var randomDrink = data.drinks[Math.floor(Math.random()*data.drinks.length)];
+            console.log(randomDrink);
+            //pull img from fetched data and set as source for new img element
+            drinkImg = $('<img>').attr({
+                src: randomDrink.strDrinkThumb,
+                width: 300,
+                height: 300,
+            });
+        $('#drink').prepend(drinkImg);
+        // add fetched recipe title to title element
+        $('#drink #recipe-header').text(randomDrink.strDrink);
+            
+            
+
+        })
+
+
+
     }
 
 
@@ -65,6 +109,7 @@ $(document).ready(function () {
     $("#search-button").on('click', function (event) {
         event.preventDefault();
         getMeals($('#form-input').val().trim(), getRecipe);
+        getDrink($('#form-input').val().trim());
 
         $('#form-input').val("");
     });
