@@ -14,7 +14,12 @@ $(document).ready(function () {
   var starterID;
   var mainID;
   var recipeImg;
+  var recipeStr;
+  var recipeInstr;
   var recipeArray;
+  var drinkImg;
+  var drinkQueryURL;
+  var drinkInstr;
 
   function getMeals(ingredientName, callBack) {
     console.log(ingredientName);
@@ -86,6 +91,31 @@ $(document).ready(function () {
             <img src="${data.meals[0].strMealThumb}" alt="${data.meals[0].strMeal}">
             <p>${data.meals[0].strInstructions}</p>
         `);
+         // checks if meals property exists and is not null
+         if (data.meals && data.meals.length > 0) {
+          //storing meal category in var
+          var mealCategory = data.meals[0].strCategory;
+          console.log(mealCategory);
+
+          // condition to extract if it is a dessert
+          if (mealCategory === "Dessert") {
+            // clear existing content in #dessert container
+            $("#dessert").children('img').remove();
+            // updating HTML
+            dessertImage = $("<img>");
+            dessertImage.attr({
+              src: data.meals[0].strMealThumb,
+              alt: 'Dessert'
+            });
+            $("#dessert").prepend(dessertImage);
+            $("#dessert #recipe-header").text(data.meals[0].strMeal);
+          } else {
+            console.log(
+              "Keep searching and find me a recipe with that ingredient !! >_<");
+            // call getMeals function again to search for more desserts with the same ingredient
+            getMeals($("#form-input").val().trim(), getRecipe);
+          }
+        }
       });
 
     fetch(recipeQueryURL2)
@@ -95,47 +125,34 @@ $(document).ready(function () {
       .then(function (data) {
         console.log(data);
 
-        // checks if meals property exists and is not null
-        if (data.meals && data.meals.length > 0) {
-          //storing meal category in var
-          var mealCategory = data.meals[0].strCategory;
-          console.log(mealCategory);
-
-          // condition to extract if it is a dessert
-          if (mealCategory === "Dessert") {
-            // clear existing content in #dessert container
-            $("#dessert").children("img").remove();
-
-            // updating HTML
-            dessertImage = $("<img>");
-            // dessertImage.attr("src", data.meals[0].strMealThumb);
-            // dessertImage.attr("alt", "Dessert");
-            // dessertImage.css({ height: "300px", width: "300px" });
-            dessertImage.attr({
-              src: data.meals[0].strMealThumb,
-              alt: "Dessert",
-              height: 300,
-              width: 300,
-            });
-
-            $("#dessert").prepend(dessertImage);
-            $("#dessert #recipe-header").text(data.meals[0].strMeal);
-          } else {
-            console.log(
-              "Keep searching and find me a recipe with that ingredient !! >_<"
-            );
-            // call getMeals function again to search for more desserts with the same ingredient
-            getMeals($("#form-input").val().trim(), getRecipe);
-          }
-        }
         $("#main").find("#location").text(data.meals[0].strArea);
         $("#main").find("#category").text(data.meals[0].strCategory);
       });
   }
 
-  function getCocktail() {
-    ingredientCocktail = "";
-    queryURL = `www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${ingredientCocktail}`;
+  function getDrink(ingredientName) {
+    drinkQueryURL = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
+
+    fetch(drinkQueryURL)
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        $("#drink").children("img").remove();
+        //randomly choose between fetched recipes
+        var randomDrink =
+          data.drinks[Math.floor(Math.random() * data.drinks.length)];
+        console.log(randomDrink);
+        //pull img from fetched data and set as source for new img element
+        drinkImg = $("<img>").attr({
+          src: randomDrink.strDrinkThumb,
+          width: 300,
+          height: 300,
+        });
+        $("#drink").prepend(drinkImg);
+        // add fetched recipe title to title element
+        $("#drink #recipe-header").text(randomDrink.strDrink);
+      });
   }
 
   // Attach a click event listener to the search button to trigger the getRecipe function
@@ -150,6 +167,7 @@ $(document).ready(function () {
       // Check if input is not empty
       errorMsg.text("");
       getMeals(inputValue, getRecipe);
+      getDrink(inputValue);
       $("#form-input").val("");
 
       // Remove the "hide" class from the recipe grid
