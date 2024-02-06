@@ -41,7 +41,7 @@ $(document).ready(function () {
 
                 // Clear existing meal names
                 $('.recipe-description').remove();
-         
+
                 // Generate two random indices
                 var randomIndex1 = Math.floor(Math.random() * data.meals.length);
                 var randomIndex2 = Math.floor(Math.random() * data.meals.length);
@@ -69,7 +69,7 @@ $(document).ready(function () {
 
             })
     }
-    
+
 
     // TODO: Get recipeID to return the matching ingredients
     function getRecipe(starterID, mainID) {
@@ -85,8 +85,8 @@ $(document).ready(function () {
                 $('#starter').find('#location').text(data.meals[0].strArea);
                 $('#starter').find('#category').text(data.meals[0].strCategory);
 
-                 // Set modal content
-            $('#recipeModal').html(`
+                // Set modal content
+                $('#recipeModal').html(`
             <img src="${data.meals[0].strMealThumb}" alt="${data.meals[0].strMeal}">
             <p>${data.meals[0].strInstructions}</p>
         `);
@@ -112,27 +112,23 @@ $(document).ready(function () {
         drinkQueryURL = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
 
         fetch(drinkQueryURL)
-        .then(function (response) {
-            return response.json();
-        })
-        .then(function (data) {
-            $('#drink').children('img').remove();
-            //randomly choose between fetched recipes
-            var randomDrink = data.drinks[Math.floor(Math.random()*data.drinks.length)];
-            console.log(randomDrink);
-            //pull img from fetched data and set as source for new img element
-            drinkImg = $('<img>').attr({
-                src: randomDrink.strDrinkThumb,
-                width: 300,
-                height: 300,
-            });
-        $('#drink').prepend(drinkImg);
-        // add fetched recipe title to title element
-        $('#drink #recipe-header').text(randomDrink.strDrink);
-            
-            
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                $('#drink').children('img').remove();
+                //randomly choose between fetched recipes
+                var randomDrink = data.drinks[Math.floor(Math.random() * data.drinks.length)];
+                console.log(randomDrink);
+                //pull img from fetched data and set as source for new img element
+                drinkImg = $('<img>').attr('src', randomDrink.strDrinkThumb);
+                $('#drink').prepend(drinkImg);
+                // add fetched recipe title to title element
+                $('#drink #recipe-header').text(randomDrink.strDrink);
 
-        })
+
+
+            })
 
 
 
@@ -141,51 +137,52 @@ $(document).ready(function () {
 
     // Attach a click event listener to the search button to trigger the getRecipe function
 
-// Attach a click event listener to the search button to trigger the getRecipe function
-$("#search-button").on('click', function (event) {
-    event.preventDefault();
-    var inputValue = $('#form-input').val().trim();
-    var errorMsg = $('#error-message');
+    // Attach a click event listener to the search button to trigger the getRecipe function
+    $("#search-button").on('click', function (event) {
+        event.preventDefault();
+        var inputValue = $('#form-input').val().trim();
+        var errorMsg = $('#error-message');
 
-    if (inputValue !== "") { // Check if input is not empty
-        errorMsg.text("");
-        getMeals(inputValue, getRecipe);
-        $('#form-input').val("");
+        if (inputValue !== "") { // Check if input is not empty
+            errorMsg.text("");
+            getMeals(inputValue, getRecipe);
+            getDrink(inputValue);
+            $('#form-input').val("");
 
-        // Remove the "hide" class from the recipe grid
-        $('#recipe-grid').removeClass('hide');
-    } else {
-        errorMsg.text("Input value is empty. Please enter an ingredient.");
-    }
-});
-
-$("#save-button").on('click', function (event) {
-    event.preventDefault();
-    
-    console.log('save clicked');
-
-
-});
-
-
-  // Attach a click event listener to the "View Recipe" button
-  $("#view-recipe").on('click', function (event) {
-    event.preventDefault();
-    // Show the jQuery UI dialog
-    $("#recipeModal").dialog("open");
-});
-
-// Initialize jQuery UI dialog
-$("#recipeModal").dialog({
-    autoOpen: false, // Dialog is initially hidden
-    modal: true, // Make it modal (overlay background)
-    width: "60%", // Set width as needed
-    buttons: {
-        "Close": function() {
-            $(this).dialog("close");
+            // Remove the "hide" class from the recipe grid
+            $('#recipe-grid').removeClass('hide');
+        } else {
+            errorMsg.text("Input value is empty. Please enter an ingredient.");
         }
-    }
-});
+    });
+
+    $("#save-button").on('click', function (event) {
+        event.preventDefault();
+
+        console.log('save clicked');
+
+
+    });
+
+
+    // Attach a click event listener to the "View Recipe" button
+    $("#view-recipe").on('click', function (event) {
+        event.preventDefault();
+        // Show the jQuery UI dialog
+        $("#recipeModal").dialog("open");
+    });
+
+    // Initialize jQuery UI dialog
+    $("#recipeModal").dialog({
+        autoOpen: false, // Dialog is initially hidden
+        modal: true, // Make it modal (overlay background)
+        width: "60%", // Set width as needed
+        buttons: {
+            "Close": function () {
+                $(this).dialog("close");
+            }
+        }
+    });
 
 
 });
