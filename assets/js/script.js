@@ -3,55 +3,103 @@ $(document).ready(function () {
     console.log('JS loaded');
 
     var mealQueryURL;
-    var recipeQueryURL;
+    var recipeQueryURL1;
+    var recipeQueryURL2;
     var queryKey;
     var ingredient;
     var course;
     var mealType;
     var mealQueryString;
     var healthLabel;
-    var recipeID;
+    var starterID;
+    var mainID;
     var recipeImg;
     var recipeArray;
 
     function getMeals(ingredientName, callBack) {
-
         console.log(ingredientName);
-
         mealQueryURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
-        // queryURL = `www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
-
         fetch(mealQueryURL)
             .then(function (response) {
                 return response.json();
             })
             .then(function (data) {
                 console.log(data);
-                var randomMeal = data.meals[Math.floor(Math.random()*data.meals.length)];
-                console.log(randomMeal);
-                recipeID = randomMeal.idMeal;
-                callBack(recipeID);
-                // return recipeID;
+                var randomMeals = [];
+                var sectionIds = ['starter', 'main'];
+
+                // Clear existing images
+                $('.meal-thumb').remove();
+
+                // Clear existing meal names
+                $('.recipe-header').remove();
+
+                // Clear existing meal names
+                $('.recipe-description').remove();
+         
+                // Generate two random indices
+                var randomIndex1 = Math.floor(Math.random() * data.meals.length);
+                var randomIndex2 = Math.floor(Math.random() * data.meals.length);
+                // Make sure the two indices are not the same
+                while (randomIndex2 === randomIndex1) {
+                    randomIndex2 = Math.floor(Math.random() * data.meals.length);
+                }
+                // Retrieve the meals at the random indices
+                randomMeals.push(data.meals[randomIndex1]);
+                randomMeals.push(data.meals[randomIndex2]);
+                console.log(randomMeals[0]);
+
+                // Add the image element to the specified section and set the src attribute
+                $('#starter').prepend(`<img class="meal-thumb" src="${randomMeals[0].strMealThumb}" alt="${randomMeals[0].strMeal}">`);
+                $('#main').prepend(`<img class="meal-thumb" src="${randomMeals[1].strMealThumb}" alt="${randomMeals[1].strMeal}">`);
+
+                // Add meal name to the specified section 
+                // $('#starter'  + ' .container').prepend(`<h4 class="recipe-header"> ${randomMeals[0].strMeal} </h4>`);
+                $('#starter').find('#recipe-header').text(randomMeals[0].strMeal);
+                $('#main').find('#recipe-header').text(randomMeals[1].strMeal);
+                // $('#main' + ' .container').prepend(`<h4 class="recipe-header"> ${randomMeals[1].strMeal} </h4>`);
+
+
+                callBack(randomMeals[0].idMeal, randomMeals[1].idMeal);
+
             })
     }
-
+    
 
     // TODO: Get recipeID to return the matching ingredients
-    function getRecipe(recipeID) {
-        // event.preventDefault();
-        recipeQueryURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeID}`;
+    function getRecipe(starterID, mainID) {
+        recipeQueryURL1 = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${starterID}`;
+        recipeQueryURL2 = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mainID}`;
 
-        fetch(recipeQueryURL)
-        .then(function (response) {
-            return response.json();
-        })
-        .then(function (data) {
-            console.log(data);
-        
-        })
+        fetch(recipeQueryURL1)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                console.log(data.meals[0]);
+                $('#starter').find('#location').text(data.meals[0].strArea);
+                $('#starter').find('#category').text(data.meals[0].strCategory);
+
+                 // Set modal content
+            $('#recipeModal').html(`
+            <img src="${data.meals[0].strMealThumb}" alt="${data.meals[0].strMeal}">
+            <p>${data.meals[0].strInstructions}</p>
+        `);
+
+            });
+
+        fetch(recipeQueryURL2)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                console.log(data);
+                $('#main').find('#location').text(data.meals[0].strArea);
+                $('#main').find('#category').text(data.meals[0].strCategory);
+            });
     }
 
-  getRecipe();
+
 
     function getCocktail() {
 
@@ -62,31 +110,51 @@ $(document).ready(function () {
 
     // Attach a click event listener to the search button to trigger the getRecipe function
 
-    $("#search-button").on('click', function (event) {
-        event.preventDefault();
-        getMeals($('#form-input').val().trim(), getRecipe);
+// Attach a click event listener to the search button to trigger the getRecipe function
+$("#search-button").on('click', function (event) {
+    event.preventDefault();
+    var inputValue = $('#form-input').val().trim();
+    var errorMsg = $('#error-message');
 
+    if (inputValue !== "") { // Check if input is not empty
+        errorMsg.text("");
+        getMeals(inputValue, getRecipe);
         $('#form-input').val("");
-    });
+
+        // Remove the "hide" class from the recipe grid
+        $('#recipe-grid').removeClass('hide');
+    } else {
+        errorMsg.text("Input value is empty. Please enter an ingredient.");
+    }
+});
+
+$("#save-button").on('click', function (event) {
+    event.preventDefault();
+    
+    console.log('save clicked');
 
 
-
-    // &mealType=Breakfast&mealType=Dinner&mealType=Lunch&mealType=Snack&mealType=Teatime
-})
+});
 
 
-//         recipeArray = [];
-//         // receipeDiv
-//         for (let i = 0; i < 1; i++) {
-//             recipeEach = data.hits[i];
-//         }
+  // Attach a click event listener to the "View Recipe" button
+  $("#view-recipe").on('click', function (event) {
+    event.preventDefault();
+    // Show the jQuery UI dialog
+    $("#recipeModal").dialog("open");
+});
 
-//         recipe = data.hits[0]
-//         recipeImg = data.hits[0].recipe.images.LARGE.url;
+// Initialize jQuery UI dialog
+$("#recipeModal").dialog({
+    autoOpen: false, // Dialog is initially hidden
+    modal: true, // Make it modal (overlay background)
+    width: "60%", // Set width as needed
+    buttons: {
+        "Close": function() {
+            $(this).dialog("close");
+        }
+    }
+});
 
-//         console.log(data.hits);
 
-//     }
-//     )
-// }
-// )
+});
