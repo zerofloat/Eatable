@@ -1,85 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="shortcut icon" href="./assets/images/logo.png" type="image/x-icon">
     <title>Eatable | Tasty Tailored Recipes</title>
 </head>
+
 <body>
     <!-- header starts -->
     <header>
-        <img src="./assets/images/logo.png" alt="Logo" >
+        <img src="./assets/images/logo.png" alt="Logo">
         <button id="my-recipes-btn">
             <a href="myRecipes.html">My Recipes</a>            
         </button>
     </header>
     <!-- header ends -->
-
-    <!-- hero text starts -->
-    <div class="p-5 text-center " id="hero">
-        <h1>Let's get Eatable.</h1>
-        <h5>Not sure what's for dinner tonight?<br>Why not start by searching an ingredient and we'll do all the hard work for you.</h5>
-    </div>
-    <!-- hero text ends -->
-
-    <!-- search starts -->
-    <div class="d-flex justify-content-center">
-        <form>
-            <div class="d-flex justify-content-center">
-                <input class="form-control me-3 col-md-6" type="search" placeholder="Try typing flour" aria-label="Search" id="form-input">
-                <button class="btn btn-outline-success col-lg-6 col-md-4" type="submit" id="search-button">Search</button> 
-            </div>
-        </form>
-    </div>
-    <!-- search ends -->
-
-    <!-- grid starts -->
     <section>
-        <div id="recipe-grid">
+        <!-- hero text starts -->
+        <div class="p-5 text-center " id="hero">
+            <h1>Let's get Eatable.</h1>
+            <br>
+            <h5>Not sure what's for dinner tonight?<br>Why not start by searching an ingredient and we'll do all the
+                hard work for you.</h5>
+        </div>
+        <!-- hero text ends -->
+
+        <!-- search starts -->
+        <div class="d-flex justify-content-center">
+            <form>
+                <div class="d-flex justify-content-center">
+                    <input class="form-control me-3 col-md-6" type="search" placeholder="Try typing flour"
+                        aria-label="Search" id="form-input">
+                    <button class="btn btn-outline-success col-lg-6 col-md-4" type="submit"
+                        id="search-button">Search</button>
+                </div>
+            </form>
+
+        </div>
+        <!-- search ends -->
+        <div class="error-container">
+            <p id="error-message"></p>
+        </div>
+
+
+        <div id="recipeModal" title="Recipe Details" style="display:none;">
+            <!-- Place your recipe details here -->
+            <p>Recipe details will be displayed here.</p>
+        </div>
+
+        <!-- grid starts -->
+
+        <div id="recipe-grid" class="hide">
             <div id="starter" class="recipe-grid-area">
-                <!-- add image here -->
                 <div class="container">
+                    <div class="description-container">
+                        <p id="location"></p>
+                        <p>&centerdot;</p>
+                        <p id="category"></p>
+                    </div>
                     <h4 id="recipe-header"></h4>
-                    <p id="recipe-description"></p>
                     <div class="recipe-button-container">
-                        <button style="background-color: blueviolet;">Recipe</button>
-                        <button style="background-color: rgb(226, 43, 86);">Save</button>
+                        <button id="view-recipe" class="btn btn-outline-success col-lg-4 col-md-6">View Recipe</button>
+                        <button id="save-button" class="btn-outline-success col-lg-4 col-md-6">Save</button>
                     </div>
                 </div>
             </div>
             <div id="main" class="recipe-grid-area">
-                <!-- add image here -->
                 <div class="container">
+                    <div class="description-container">
+                        <p id="location"></p>
+                        <p>&centerdot;</p>
+                        <p id="category"></p>
+                    </div>
                     <h4 id="recipe-header"></h4>
                     <p id="recipe-description"></p>
                     <div class="recipe-button-container">
-                        <button style="background-color: blueviolet;">Recipe</button>
-                        <button style="background-color: rgb(226, 43, 86);">Save</button>
+                        <button class="btn btn-outline-success col-lg-4 col-md-4">View Recipe</button>
+                        <button class="btn-outline-success col-lg-4 col-md-4">Save</button>
                     </div>
                 </div>
             </div>
             <div id="dessert" class="recipe-grid-area">
-                <!-- add image here -->
                 <div class="container">
+                    <div class="description-container">
+                        <p id="location"></p>
+                        <p>&centerdot;</p>
+                        <p id="category"></p>
+                    </div>
                     <h4 id="recipe-header"></h4>
                     <p id="recipe-description"></p>
                     <div class="recipe-button-container">
-                        <button style="background-color: blueviolet;">Recipe</button>
-                        <button style="background-color: rgb(226, 43, 86);">Save</button>
+                        <button class="btn btn-outline-success col-lg-4 col-md-4">View Recipe</button>
+                        <button class="btn-outline-success col-lg-4 col-md-4">Save</button>
                     </div>
                 </div>
             </div>
             <div id="drink" class="recipe-grid-area">
-                <!-- add image here -->
                 <div class="container">
+                    <div class="description-container">
+                        <p id="location"></p>
+                        <p>&centerdot;</p>
+                        <p id="category"></p>
+                    </div>
                     <h4 id="recipe-header"></h4>
                     <p id="recipe-description"></p>
                     <div class="recipe-button-container">
-                        <button style="background-color: blueviolet;">Recipe</button>
-                        <button style="background-color: rgb(226, 43, 86);">Save</button>
+                        <button class="btn btn-outline-success col-lg-4 col-md-4">View Recipe</button>
+                        <button class="btn-outline-success col-lg-4 col-md-4">Save</button>
                     </div>
                 </div>
             </div>
@@ -88,20 +121,21 @@
     <!-- grid ends -->
 
 
-    
+
     <!-- footer starts -->
     <footer>
         <h5>
             2024 &copy; GROUP 9
         </h5>
-        <a href="https://github.com/zerofloat/Eatable" target="_blank"> 
+        <a href="https://github.com/zerofloat/Eatable" target="_blank">
             GitHub
         </a>
     </footer>
     <!-- footer ends -->
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="./assets/js/script.js"></script>
 </body>
-</html>
 
+</html>
