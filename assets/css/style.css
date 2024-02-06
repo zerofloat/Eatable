@@ -1,6 +1,11 @@
 /* import font starts */
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
 
+p {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 :root {
     --main-bg-color: #ffd372;
     --dark-txt-color: #1e1e1e;
@@ -27,12 +32,7 @@ button {
     border: none;
     border-radius: var(--button-border-radius) !important;
     padding: var(--button-padding) !important;
-    transition: transform 0.3s ease; /* Smooth transition for the transform property */
-}
-
-button:hover {
-    transform: scale(1.05); /* Scale the button by 5% on hover */
-    cursor: pointer;
+  
 }
 
 
@@ -65,28 +65,37 @@ header button {
 /* section */
 
 section {
-    height: 100vh;
+    min-height: 100vh;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.error-container {
     margin-top: 40px;
     display: flex;
     justify-content: center;
 }
 
 #recipe-grid {
+    width: 100%;
     gap: 20px;
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
     justify-content: center;
+     flex-wrap: wrap;
+     margin-bottom: 30px;
 }
 
 
 .recipe-grid-area {
-    width: 40%;
+    width: 33.33%;
     display: flex;
     flex-direction: column;
     align-items: center;
     border-radius: var(--button-border-radius);
+    transition: transform 0.3s ease; /* Smooth transition for the transform property */
 } 
 
 .recipe-grid-area img {
@@ -94,11 +103,24 @@ section {
     width: 100%;
 }
 
+.recipe-grid-area:hover {
+    transform: scale(1.02);
+}
+
 .container {
     padding: 20px;
-    height: 200px;
+    width: 100%;
+    height: 210px;
     border-radius: 0 0 20px 20px;
     background-color: var(--secondary-btn-bg);
+    display: flex;
+    flex-direction: column;
+}
+
+.recipe-button-container {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
 }
 
 .recipe-grid-area h2 {
@@ -106,8 +128,31 @@ section {
    border-radius: var(--button-border-radius);
 }
 
+#recipe-header {
+    margin: 20px 0;
+}
+
+.description-container {
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    column-gap: 5px;
+}
+
+.hide {
+    display: none !important;
+}
 
 /* footer */
+
+footer {
+    margin-top: auto;
+    width: 100%;
+    text-align: center; /* Center the content inside the footer */
+    position: relative;
+    bottom: 0; /* Ensure it sticks to the bottom */
+}
 
 footer a {
     color: #1e1e1e;
