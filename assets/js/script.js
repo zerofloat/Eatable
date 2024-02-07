@@ -21,22 +21,25 @@ $(document).ready(function () {
     var drinkQueryURL;
     var drinkInstr;
     var mainsRecipes = [];
+    var starterRecipes = [];
     var dessertRecipes = [];
     var mealOptions = [
         'Beef',
         'Chicken',
         'Vegan',
         'Lamb',
-        'Miscellaneous',
         'Pasta',
         'Pork',
         'Seafood',
-        'Side',
         'Vegetarian',
-        'Breakfast',
         'Goat',
+        'Miscellaneous',
+        'Side',    
+        'Breakfast',
         'Starter'
+
     ];
+  
 
     function getMeals(ingredientName, callBack) {
         // console.log(ingredientName);
@@ -54,71 +57,49 @@ $(document).ready(function () {
 
 
 
-    // TODO: Get recipeID to return the matching ingredients
-    function getRecipe(starterID, mainID, dessertID) {
-        // Define an array of meal categories to check against
-        var mealOptions = [
-            'Beef',
-            'Chicken',
-            'Vegan',
-            'Lamb',
-            'Miscellaneous',
-            'Pasta',
-            'Pork',
-            'Seafood',
-            'Side',
-            'Vegetarian',
-            'Breakfast',
-            'Goat',
-            'Starter'
-        ];
+   
 
-        var dessertOption = "Dessert";
+    function getStarter(ingredientName, callback) {
+        var starterIngURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
 
-        // Define the query URLs for the two meals
-        var recipeQueryURL1 = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${starterID}`;
-        var recipeQueryURL2 = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mainID}`;
-        var recipeQueryURL3 = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${dessertID}`;
-
-        // Fetch data for the first meal
-        fetch(recipeQueryURL1)
+        fetch(starterIngURL)
             .then(function (response) {
                 return response.json();
             })
             .then(function (data) {
-                // console.log(data.meals);
+                var starterIDs = [];
 
-                // Check if the meal category matches any of the options
-                if (mealOptions.includes(data.meals[0].strCategory)) {
-                    var meal1 = data.meals[0];
-                    var mealCategory = meal1.strCategory;
-                    var mealArea = meal1.strArea;
-
-                    $('#starter').find('.save-button').attr('data-meal-id', meal1.idMeal);
-
-                    // Clear existing images and text for starter section
-                    $('#starter').find('.meal-thumb').remove();
-                    $('#starter').find('#recipe-header').text('');
-
-                    // Output image and name for starter section
-                    $('#starter').prepend(`<img class="meal-thumb" src="${meal1.strMealThumb}" alt="${meal1.strMeal}">`);
-                    $('#starter').find('#recipe-header').text(meal1.strMeal);
-
-                    if (mealOptions.includes(mealCategory)) {
-                        // Update HTML for the starter section with the first meal
-                        $('#starter').find('#location').text(mealArea);
-                        $('#starter').find('#category').text(mealCategory);
-                    } else {
-                        $('#error-message').text("No meal found for the starter.");
-                        $('.error-container').show();
-
-                    }
+                for (let i = 0; i < data.meals.length; i++) {
+                    const meal = data.meals[i];
+                    starterIDs.push(meal.idMeal);
                 }
+
+                // Map each fetch request to a promise
+                var fetchPromises = starterIDs.map(async function (recipe) {
+                    var starterRecURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipe}`;
+
+                    const response = await fetch(starterRecURL);
+                    const data = await response.json();
+                    // Check if the category is dessert
+                    if (mealOptions.includes(data.meals[0].strCategory)) {
+                        return data.meals[0];
+                        // console.log( data.meals[0]);
+                    }
+                });
+
+                // Wait for all promises to resolve
+                return Promise.all(fetchPromises);
+            })
+            .then(function (mains) {
+                // Filter out undefined values and add to dessertRecipes
+                starterRecipes.push(...mains.filter(recipe => recipe !== undefined));
+                // console.log("Mains Recipes:", mainsRecipes);
+                callback();
             });
-
-  
-
     }
+
+
+
 
     function getMain(ingredientName, callback) {
         var mainIngURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
@@ -200,6 +181,22 @@ $(document).ready(function () {
 
     function displayMeals() {
      
+        // Display starter
+        var randomStarter = starterRecipes[Math.floor(Math.random() * starterRecipes.length)];
+        console.log('random starter ', randomStarter);
+        if (randomStarter) {
+            $('#starter').find('.save-button').attr('data-meal-id', randomStarter.idMeal);
+            $('#starter').find('.meal-thumb').remove();
+            $('#starter').find('#recipe-header').text('');
+            var starterImage = $('<img class="meal-thumb">').attr({
+                src: randomStarter.strMealThumb,
+                alt: randomStarter.strMeal,
+            });
+            $("#starter").prepend(starterImage);
+            $("#starter #recipe-header").text(randomStarter.strMeal);
+            $("#starter #location").text(randomStarter.strArea);
+        }
+
         // Display main
         var randomMain = mainsRecipes[Math.floor(Math.random() * mainsRecipes.length)];
         console.log('random main: ', randomMain);
@@ -214,7 +211,6 @@ $(document).ready(function () {
             $("#main").prepend(mainImage);
             $("#main #recipe-header").text(randomMain.strMeal);
             $("#main #location").text(randomMain.strArea);
-            $("#main #category").text(randomMain.strCategory);
         }
     
         // Display dessert
@@ -230,16 +226,10 @@ $(document).ready(function () {
             $("#dessert").prepend(dessertImage);
             $("#dessert #recipe-header").text(randomDessert.strMeal);
             $("#dessert #location").text(randomDessert.strArea);
-            $("#dessert #category").text(randomDessert.strCategory);
         }
     }
     
     
-
-
-
-
-
     function getDrink(ingredientName) {
 
         drinkQueryURL = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
@@ -288,6 +278,9 @@ $(document).ready(function () {
                 getMain(inputValue, function () {
                     displayMeals();
                 });
+                getStarter(inputValue, function () {
+                    displayMeals();
+                });
             });
     
             $('#form-input').val("");
@@ -307,13 +300,27 @@ $(document).ready(function () {
         $("#recipeModal").dialog("open");
     });
 
-    // Use class selector to target all save buttons
-    $(".save-button").on('click', function (event) {
-        event.preventDefault();
-        // Log the data attribute of the clicked button
-        var mealId = $(this).attr('data-meal-id');
-        console.log("Meal ID:", mealId);
-    });
+// Use class selector to target all save buttons
+$(".save-button").on('click', function (event) {
+    event.preventDefault();
+    // Log the data attribute of the clicked button
+    var mealId = $(this).attr('data-meal-id');
+    
+    // Check the current text of the button
+    if ($(this).text() === 'Save') {
+        // If current text is "Save", change it to "Saved"
+        $(this).text('Saved');
+        $(this).addClass('saved-button');
+        console.log("Meal ID:", mealId, "saved");
+        // Perform saving operation here
+    } else {
+        // If current text is "Saved", change it back to "Save"
+        $(this).text('Save');
+        $(this).removeClass('saved-button');
+        console.log("Meal ID:", mealId, "unsaved");
+        // Perform unsaving operation here if necessary
+    }
+});
 
     // Initialize jQuery UI dialog
     $("#recipeModal").dialog({

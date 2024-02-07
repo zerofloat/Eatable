@@ -43,6 +43,12 @@ button a {
     color: var(--dark-txt-color);
 }
 
+.saved-button {
+    background-color: var(--dark-txt-color);
+    color: #ffffff;
+}
+
+
 /*search bar button*/
 .btn {
     color: #ffffff;
