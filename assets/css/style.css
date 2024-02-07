@@ -30,7 +30,7 @@ body {
 
 /* all buttons */
 button {
-    font-weight: 400;
+    font-weight: 500;
     border: none;
     border-radius: var(--button-border-radius) !important;
     padding: var(--button-padding) !important;
@@ -38,7 +38,7 @@ button {
 }
 
 button a {
-    font-weight: 600 !important;
+    font-weight: 500 !important;
     text-decoration: none;
     color: var(--dark-txt-color);
 }

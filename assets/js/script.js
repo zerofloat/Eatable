@@ -170,6 +170,42 @@ $(document).ready(function () {
 
     }
 
+    function getDessert(ingredientName) {
+        var dessertIngURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
+
+        fetch(dessertIngURL)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                var dessertIDs = [];
+
+                for (let i = 0; i < data.meals.length; i++) {
+                    const meal = data.meals[i];
+                    dessertIDs.push(meal.idMeal);
+                }
+
+                // Second fetch requests inside the first fetch's `then` block
+                for (let j = 0; j < dessertIDs.length; j++) {
+                    const recipe = dessertIDs[j];
+                    var dessertRecURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipe}`;
+
+                    fetch(dessertRecURL)
+                        .then(function (response) {
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            // Check if the category is dessert
+                            if (data.meals[0].strCategory === "Dessert") {
+                                console.log(data.meals);
+                            }
+                        });
+                }
+            });
+    }
+    
+
+
 
     function getDrink(ingredientName) {
 
@@ -226,6 +262,7 @@ $(document).ready(function () {
                 }
             });
             getDrink(inputValue);
+            getDessert(inputValue);
             $('#form-input').val("");
             $('#recipe-grid').removeClass('hide');
         } else {
