@@ -389,6 +389,8 @@ $(document).ready(function () {
                     if (element.mealCat === "Dessert") {
                         console.log('hello', element.mealId);
 
+                        $('.my-desserts .card-h4').text('My Desserts');
+
                         $('.my-desserts .recipe-cards').append(`
     
                         <div class="card" style="width: 18rem;">
@@ -396,13 +398,22 @@ $(document).ready(function () {
                             <div class="card-body">
                                 <h5 class="card-title">${data.meals[0].strMeal}</h5>
                                 <p class="card-text">${data.meals[0].strArea}</p>
-                                <a class="btn btn-primary">View Recipe</a>
+                                ${
+                                    //check if data.meals[0].strYoutube is not an empty string. If it's not empty, we use it as the link for the "View Recipe" button
+                                    data.meals[0].strYoutube !== "" ? 
+                                    `<a href="${data.meals[0].strYoutube}" target="_blank" class="btn btn-primary">View Recipe</a>` :
+                                    (data.meals[0].strSource !== "" ?
+                                    `<a href="${data.meals[0].strSource}" target="_blank" class="btn btn-primary">View Recipe</a>` :
+                                    `<button class="btn btn-primary" disabled>Coming Soon</button>`)
+                                }
                             </div>
                         </div>
                       
                     `);
 
                     } else if (element.mealCat === "Side" || element.mealCat === "Starter" || element.mealCat === "Miscellaneous"  || element.mealCat === "Breakfast"  ) {
+                        $('.my-starters .card-h4').text('My Starters');
+
                         $('.my-starters .recipe-cards').append(`
                         
                         <div class="card" style="width: 18rem;">
@@ -410,12 +421,20 @@ $(document).ready(function () {
                             <div class="card-body">
                                 <h5 class="card-title">${data.meals[0].strMeal}</h5>
                                 <p class="card-text">${data.meals[0].strArea}</p>
-                                <a class="btn btn-primary">View Recipe</a>
+                                ${
+                                    data.meals[0].strYoutube !== "" ? 
+                                    `<a href="${data.meals[0].strYoutube}" target="_blank" class="btn btn-primary">View Recipe</a>` :
+                                    (data.meals[0].strSource !== "" ?
+                                    `<a href="${data.meals[0].strSource}" target="_blank" class="btn btn-primary">View Recipe</a>` :
+                                    `<button class="btn btn-primary" disabled>Coming Soon</button>`)
+                                }
                             </div>
                         </div>
                     `);
 
                     } else {
+                        $('.my-mains .card-h4').text('My Mains');
+
                         $('.my-mains .recipe-cards').append(`
 
                         <div class="card" style="width: 18rem;">
@@ -423,7 +442,13 @@ $(document).ready(function () {
                             <div class="card-body">
                                 <h5 class="card-title">${data.meals[0].strMeal}</h5>
                                 <p class="card-text">${data.meals[0].strArea}</p>
-                                <a class="btn btn-primary">View Recipe</a>
+                                ${
+                                    data.meals[0].strYoutube !== "" ? 
+                                    `<a href="${data.meals[0].strYoutube}" target="_blank" class="btn btn-primary">View Recipe</a>` :
+                                    (data.meals[0].strSource !== "" ?
+                                    `<a href="${data.meals[0].strSource}" target="_blank" class="btn btn-primary">View Recipe</a>` :
+                                    `<button class="btn btn-primary" disabled>Coming Soon</button>`)
+                                }
                             </div>
                         </div>
                         </div>

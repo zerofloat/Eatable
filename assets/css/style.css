@@ -169,7 +169,8 @@ section {
 .recipe-cards {
     display: flex;
     flex-direction: row;
-    column-gap: 20px;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
 .recipe-cards .card {
@@ -184,6 +185,10 @@ section {
 
 .recipe-cards .card .card-body .card-text {
     margin-bottom: 8px !important;
+}
+
+.card-h4 {
+    margin-bottom: 20px;
 }
 
 
