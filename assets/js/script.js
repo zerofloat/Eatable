@@ -34,12 +34,15 @@ $(document).ready(function () {
         'Vegetarian',
         'Goat',
         'Miscellaneous',
-        'Side',    
+        'Side',
         'Breakfast',
         'Starter'
 
     ];
-  
+    var savedMeals = [];
+
+    console.log(savedMeals);
+
 
     function getMeals(ingredientName, callBack) {
         // console.log(ingredientName);
@@ -54,10 +57,6 @@ $(document).ready(function () {
                 callBack(data.meals);
             });
     }
-
-
-
-   
 
     function getStarter(ingredientName, callback) {
         var starterIngURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
@@ -180,7 +179,7 @@ $(document).ready(function () {
     }
 
     function displayMeals() {
-     
+
         // Display starter
         var randomStarter = starterRecipes[Math.floor(Math.random() * starterRecipes.length)];
         console.log('random starter ', randomStarter);
@@ -195,6 +194,8 @@ $(document).ready(function () {
             $("#starter").prepend(starterImage);
             $("#starter #recipe-header").text(randomStarter.strMeal);
             $("#starter #location").text(randomStarter.strArea);
+
+
         }
 
         // Display main
@@ -212,7 +213,7 @@ $(document).ready(function () {
             $("#main #recipe-header").text(randomMain.strMeal);
             $("#main #location").text(randomMain.strArea);
         }
-    
+
         // Display dessert
         var randomDessert = dessertRecipes[Math.floor(Math.random() * dessertRecipes.length)];
         if (randomDessert) {
@@ -227,9 +228,11 @@ $(document).ready(function () {
             $("#dessert #recipe-header").text(randomDessert.strMeal);
             $("#dessert #location").text(randomDessert.strArea);
         }
+
+
     }
-    
-    
+
+
     function getDrink(ingredientName) {
 
         drinkQueryURL = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
@@ -255,21 +258,21 @@ $(document).ready(function () {
 
     }
 
-
-    // Attach a click event listener to the search button to trigger the getRecipe function
-
-    // Attach a click event listener to the search button to trigger the getRecipe function
     // Attach a click event listener to the search button to trigger the getMeals function
     $("#search-button").on('click', function (event) {
         event.preventDefault();
         var inputValue = $('#form-input').val().trim();
         var errorMsg = $('#error-message');
-    
+
         if (inputValue !== "") {
             errorMsg.text("");
-    
+
+            // Clear previously saved buttons
+            $(".save-button").removeClass('saved-button');
+            $(".save-button").text('Save');
+
             // Call getMeals first
-            getMeals(inputValue, function(meals) {
+            getMeals(inputValue, function (meals) {
                 // Call other functions after getMeals completes
                 getDrink(inputValue);
                 getDessert(inputValue, function () {
@@ -282,16 +285,13 @@ $(document).ready(function () {
                     displayMeals();
                 });
             });
-    
+
             $('#form-input').val("");
             $('#recipe-grid').removeClass('hide');
         } else {
             errorMsg.text("Please enter an ingredient");
         }
     });
-    
-
-
 
     // Attach a click event listener to the "View Recipe" button
     $("#view-recipe").on('click', function (event) {
@@ -300,27 +300,44 @@ $(document).ready(function () {
         $("#recipeModal").dialog("open");
     });
 
-// Use class selector to target all save buttons
-$(".save-button").on('click', function (event) {
-    event.preventDefault();
-    // Log the data attribute of the clicked button
-    var mealId = $(this).attr('data-meal-id');
-    
-    // Check the current text of the button
-    if ($(this).text() === 'Save') {
-        // If current text is "Save", change it to "Saved"
-        $(this).text('Saved');
-        $(this).addClass('saved-button');
-        console.log("Meal ID:", mealId, "saved");
-        // Perform saving operation here
-    } else {
-        // If current text is "Saved", change it back to "Save"
-        $(this).text('Save');
-        $(this).removeClass('saved-button');
-        console.log("Meal ID:", mealId, "unsaved");
-        // Perform unsaving operation here if necessary
-    }
-});
+    // Use class selector to target all save buttons
+    $(".save-button").on('click', function (event) {
+        event.preventDefault();
+        // Log the data attribute of the clicked button
+        var mealId = $(this).attr('data-meal-id');
+
+        // Check the current text of the button
+        if ($(this).text() === 'Save') {
+            // If current text is "Save", change it to "Saved"
+            $(this).text('Saved');
+            $(this).addClass('saved-button');
+            savedMeals.push(mealId);
+            console.log("Meal ID:", mealId, "saved");
+            console.log(savedMeals);
+       
+            // Save the updated savedMeals array to local storage
+        localStorage.setItem('savedMeals', JSON.stringify(savedMeals));
+        } else {
+            // If current text is "Saved", change it back to "Save"
+            $(this).text('Save');
+            $(this).removeClass('saved-button');
+            console.log("Meal ID:", mealId, "unsaved");
+
+            // Find the index of mealId in savedMeals array
+            var index = savedMeals.indexOf(mealId);
+            //if value is not found -1 is always returned so make sure index is != -1 to continue
+            if (index !== -1) {
+                // Remove the mealId from the savedMeals array, 1 is the number of elements to remove starting from index
+                savedMeals.splice(index, 1);
+                console.log("Meal ID:", mealId, "removed from savedMeals");
+                console.log(savedMeals);
+                // Save the updated savedMeals array to local storage
+            localStorage.setItem('savedMeals', JSON.stringify(savedMeals));
+            } else {
+                console.log("Meal ID:", mealId, "not found in savedMeals");
+            }
+        }
+    });
 
     // Initialize jQuery UI dialog
     $("#recipeModal").dialog({
