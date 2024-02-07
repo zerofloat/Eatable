@@ -12,6 +12,7 @@ p {
     --light-txt-color: #d2bdbd;
     --accent-txt-color: #f15b40;
     --main-btn-bg: #f15b40;
+    --danger: #ff4344;
     --secondary-btn-bg: #fef7e6;
     --button-border-radius: 10px;
     --button-padding: 10px 20px;
@@ -23,18 +24,29 @@ body {
     margin: 30px;
     height: 100%;
     font-family: 'Open Sans', sans-serif;
-    background-color: var( --main-bg-color) !important;
+    background-color: var(--main-bg-color) !important;
     color: var(--dark-txt-color) !important;
 }
 
 /* all buttons */
 button {
+    font-weight: 500;
     border: none;
     border-radius: var(--button-border-radius) !important;
     padding: var(--button-padding) !important;
-  
+
 }
 
+button a {
+    font-weight: 500 !important;
+    text-decoration: none;
+    color: var(--dark-txt-color);
+}
+
+.saved-button {
+    background-color: var(--dark-txt-color);
+    color: #ffffff;
+}
 
 
 /*search bar button*/
@@ -46,7 +58,8 @@ button {
 
 /* header */
 
-header, footer {
+header,
+footer {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -73,7 +86,8 @@ section {
 }
 
 .error-container {
-    margin-top: 40px;
+    color: var(--danger);
+    margin: 40px 0;
     display: flex;
     justify-content: center;
 }
@@ -84,8 +98,8 @@ section {
     display: flex;
     flex-direction: row;
     justify-content: center;
-     flex-wrap: wrap;
-     margin-bottom: 30px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
 }
 
 
@@ -95,8 +109,9 @@ section {
     flex-direction: column;
     align-items: center;
     border-radius: var(--button-border-radius);
-    transition: transform 0.3s ease; /* Smooth transition for the transform property */
-} 
+    transition: transform 0.3s ease;
+    /* Smooth transition for the transform property */
+}
 
 .recipe-grid-area img {
     border-radius: 20px 20px 0 0;
@@ -124,8 +139,8 @@ section {
 }
 
 .recipe-grid-area h2 {
-   background-color: var(--secondary-btn-bg);
-   border-radius: var(--button-border-radius);
+    background-color: var(--secondary-btn-bg);
+    border-radius: var(--button-border-radius);
 }
 
 #recipe-header {
@@ -149,9 +164,11 @@ section {
 footer {
     margin-top: auto;
     width: 100%;
-    text-align: center; /* Center the content inside the footer */
+    text-align: center;
+    /* Center the content inside the footer */
     position: relative;
-    bottom: 0; /* Ensure it sticks to the bottom */
+    bottom: 0;
+    /* Ensure it sticks to the bottom */
 }
 
 footer a {
@@ -159,19 +176,21 @@ footer a {
     font-size: 20px;
 }
 
-/* media query */
-/* 
-@media only screen and (max-width: 760px) {
-    
-    #recipe-grid  {
-        grid-template-columns: 100%;
-        grid-template-rows: 350px 350px 350px 350px;
-        grid-template-areas: 
-        "starter"
-        "main"
-        "dessert"
-        "drink"
-        ;
+@media only screen and (max-width: 775px) {
+    #recipe-grid {
+        width: 100%;
+        gap: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 30px;
+        align-items: center;
     }
-  
-  } */
+
+    .recipe-grid-area,
+    .recipe-grid-area .container {
+        width: 100%;
+        max-width: 100%;
+    }
+}
