@@ -2,6 +2,9 @@
 $(document).ready(function () {
     console.log('JS loaded');
 
+     // Call getSavedRecipes when the DOM is ready
+     getSavedRecipes();
+     
     var mealQueryURL;
     var recipeQueryURL1;
     var recipeQueryURL2;
@@ -184,7 +187,10 @@ $(document).ready(function () {
         var randomStarter = starterRecipes[Math.floor(Math.random() * starterRecipes.length)];
         console.log('random starter ', randomStarter);
         if (randomStarter) {
-            $('#starter').find('.save-button').attr('data-meal-id', randomStarter.idMeal);
+            $('#starter').find('.save-button').attr({
+                'data-meal-id': randomStarter.idMeal,
+                'data-meal-category': randomStarter.strCategory
+            });
             $('#starter').find('.meal-thumb').remove();
             $('#starter').find('#recipe-header').text('');
             var starterImage = $('<img class="meal-thumb">').attr({
@@ -202,7 +208,10 @@ $(document).ready(function () {
         var randomMain = mainsRecipes[Math.floor(Math.random() * mainsRecipes.length)];
         console.log('random main: ', randomMain);
         if (randomMain) {
-            $('#main').find('.save-button').attr('data-meal-id', randomMain.idMeal);
+            $('#main').find('.save-button').attr({
+                'data-meal-id': randomMain.idMeal,
+                'data-meal-category': randomMain.strCategory
+            });
             $('#main').find('.meal-thumb').remove();
             $('#main').find('#recipe-header').text('');
             var mainImage = $('<img class="meal-thumb">').attr({
@@ -217,7 +226,10 @@ $(document).ready(function () {
         // Display dessert
         var randomDessert = dessertRecipes[Math.floor(Math.random() * dessertRecipes.length)];
         if (randomDessert) {
-            $('#dessert').find('.save-button').attr('data-meal-id', randomDessert.idMeal);
+            $('#dessert').find('.save-button').attr({
+                'data-meal-id': randomDessert.idMeal,
+                'data-meal-category': randomDessert.strCategory
+            });
             $('#dessert').find('.meal-thumb').remove();
             $('#dessert').find('#recipe-header').text('');
             var dessertImage = $('<img class="meal-thumb">').attr({
@@ -305,18 +317,19 @@ $(document).ready(function () {
         event.preventDefault();
         // Log the data attribute of the clicked button
         var mealId = $(this).attr('data-meal-id');
+        var mealCat = $(this).attr('data-meal-category');
 
         // Check the current text of the button
         if ($(this).text() === 'Save') {
             // If current text is "Save", change it to "Saved"
             $(this).text('Saved');
             $(this).addClass('saved-button');
-            savedMeals.push(mealId);
+            savedMeals.push({ mealId: mealId, mealCat: mealCat });
             console.log("Meal ID:", mealId, "saved");
             console.log(savedMeals);
-       
+
             // Save the updated savedMeals array to local storage
-        localStorage.setItem('savedMeals', JSON.stringify(savedMeals));
+            localStorage.setItem('savedMeals', JSON.stringify(savedMeals));
         } else {
             // If current text is "Saved", change it back to "Save"
             $(this).text('Save');
@@ -324,7 +337,10 @@ $(document).ready(function () {
             console.log("Meal ID:", mealId, "unsaved");
 
             // Find the index of mealId in savedMeals array
-            var index = savedMeals.indexOf(mealId);
+            var index = savedMeals.findIndex(function (item) {
+                return item.mealId === mealId;
+            });
+
             //if value is not found -1 is always returned so make sure index is != -1 to continue
             if (index !== -1) {
                 // Remove the mealId from the savedMeals array, 1 is the number of elements to remove starting from index
@@ -332,7 +348,7 @@ $(document).ready(function () {
                 console.log("Meal ID:", mealId, "removed from savedMeals");
                 console.log(savedMeals);
                 // Save the updated savedMeals array to local storage
-            localStorage.setItem('savedMeals', JSON.stringify(savedMeals));
+                localStorage.setItem('savedMeals', JSON.stringify(savedMeals));
             } else {
                 console.log("Meal ID:", mealId, "not found in savedMeals");
             }
@@ -351,5 +367,75 @@ $(document).ready(function () {
         }
     });
 
+    function getSavedRecipes(params) {
+        var savedRecipes = JSON.parse(localStorage.getItem("savedMeals"));
+        // console.log(savedRecipes[0].mealCat);
+        console.log(savedRecipes);
+
+        for (let k = 0; k < savedRecipes.length; k++) {
+            const element = savedRecipes[k];
+            console.log(element);
+
+
+            savedQueryURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${element.mealId}`;
+
+            fetch(savedQueryURL)
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    console.log(data);
+
+                    if (element.mealCat === "Dessert") {
+                        console.log('hello', element.mealId);
+
+                        $('.my-desserts .recipe-cards').append(`
+    
+                        <div class="card" style="width: 18rem;">
+                            <img class="card-img-top" src="${data.meals[0].strMealThumb}" alt="Card image cap">
+                            <div class="card-body">
+                                <h5 class="card-title">${data.meals[0].strMeal}</h5>
+                                <p class="card-text">${data.meals[0].strArea}</p>
+                                <a class="btn btn-primary">View Recipe</a>
+                            </div>
+                        </div>
+                      
+                    `);
+
+                    } else if (element.mealCat === "Side" || element.mealCat === "Starter" || element.mealCat === "Miscellaneous"  || element.mealCat === "Breakfast"  ) {
+                        $('.my-starters .recipe-cards').append(`
+                        
+                        <div class="card" style="width: 18rem;">
+                            <img class="card-img-top" src="${data.meals[0].strMealThumb}" alt="${data.meals[0].strMealThumb}">
+                            <div class="card-body">
+                                <h5 class="card-title">${data.meals[0].strMeal}</h5>
+                                <p class="card-text">${data.meals[0].strArea}</p>
+                                <a class="btn btn-primary">View Recipe</a>
+                            </div>
+                        </div>
+                    `);
+
+                    } else {
+                        $('.my-mains .recipe-cards').append(`
+
+                        <div class="card" style="width: 18rem;">
+                            <img class="card-img-top" src="${data.meals[0].strMealThumb}" alt="${data.meals[0].strMealThumb}">
+                            <div class="card-body">
+                                <h5 class="card-title">${data.meals[0].strMeal}</h5>
+                                <p class="card-text">${data.meals[0].strArea}</p>
+                                <a class="btn btn-primary">View Recipe</a>
+                            </div>
+                        </div>
+                        </div>
+                    `);
+                    }
+                   
+
+                })
+
+        }
+    }
+
+    getSavedRecipes()
 
 });
