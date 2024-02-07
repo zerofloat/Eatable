@@ -113,9 +113,18 @@ $(document).ready(function () {
 
         fetch(drinkQueryURL)
             .then(function (response) {
-                return response.json();
+                console.log("Response Object: ", response)
+                /*if (response.json() === null) {
+                    console.log("no match in API!");
+                    
+                } else {
+                    return response.json();
+                }
+                */
+               return response.json();
             })
             .then(function (data) {
+                console.log("Data: ", data);
                 $('#drink').children('img').remove();
                 //randomly choose between fetched recipes
                 var randomDrink = data.drinks[Math.floor(Math.random() * data.drinks.length)];
@@ -125,10 +134,17 @@ $(document).ready(function () {
                 $('#drink').prepend(drinkImg);
                 // add fetched recipe title to title element
                 $('#drink #recipe-header').text(randomDrink.strDrink);
-
-
-
+                
+                
+                // }
+                
             })
+            .catch(function(error) {
+                console.log("Error: ", error);
+                console.log("no match in API!");
+                // consider letting the user know that no record were found --> updating DOM content 
+                
+            });
 
 
 
