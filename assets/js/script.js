@@ -20,17 +20,33 @@ $(document).ready(function () {
     var drinkImg;
     var drinkQueryURL;
     var drinkInstr;
+    var mainsRecipes = [];
     var dessertRecipes = [];
+    var mealOptions = [
+        'Beef',
+        'Chicken',
+        'Vegan',
+        'Lamb',
+        'Miscellaneous',
+        'Pasta',
+        'Pork',
+        'Seafood',
+        'Side',
+        'Vegetarian',
+        'Breakfast',
+        'Goat',
+        'Starter'
+    ];
 
     function getMeals(ingredientName, callBack) {
-        console.log(ingredientName);
+        // console.log(ingredientName);
         mealQueryURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
         fetch(mealQueryURL)
             .then(function (response) {
                 return response.json();
             })
             .then(function (data) {
-                console.log(data);
+                // console.log(data);
                 // Pass the array of meals to the callback function
                 callBack(data.meals);
             });
@@ -70,7 +86,7 @@ $(document).ready(function () {
                 return response.json();
             })
             .then(function (data) {
-                console.log(data.meals);
+                // console.log(data.meals);
 
                 // Check if the meal category matches any of the options
                 if (mealOptions.includes(data.meals[0].strCategory)) {
@@ -100,96 +116,69 @@ $(document).ready(function () {
                 }
             });
 
-        // Fetch data for the second meal
-        fetch(recipeQueryURL2)
+  
+
+    }
+
+    function getMain(ingredientName, callback) {
+        var mainIngURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
+
+        fetch(mainIngURL)
             .then(function (response) {
                 return response.json();
             })
             .then(function (data) {
-                console.log(data);
+                var mainsIDs = [];
 
-                // Check if the meal category matches any of the options
-                if (mealOptions.includes(data.meals[0].strCategory)) {
-                    var meal2 = data.meals[0];
-                    var mealCategory = meal2.strCategory;
-                    var mealArea = meal2.strArea;
-
-                    $('#main').find('.save-button').attr('data-meal-id', meal2.idMeal);
-
-                    // Clear existing images and text for main section
-                    $('#main').find('.meal-thumb').remove();
-                    $('#main').find('#recipe-header').text('');
-
-                    // Output image and name for main section
-                    $('#main').prepend(`<img class="meal-thumb" src="${meal2.strMealThumb}" alt="${meal2.strMeal}">`);
-                    $('#main').find('#recipe-header').text(meal2.strMeal);
-
-                    if (mealOptions.includes(mealCategory)) {
-                        // Update HTML for the main section with the second meal
-                        $('#main').find('#location').text(mealArea);
-                        $('#main').find('#category').text(mealCategory);
-                    } else {
-                        $('#error-message').text("No meal found for the main.");
-                        $('.error-container').show();
-                    }
+                for (let i = 0; i < data.meals.length; i++) {
+                    const meal = data.meals[i];
+                    mainsIDs.push(meal.idMeal);
                 }
+
+                // Map each fetch request to a promise
+                var fetchPromises = mainsIDs.map(async function (recipe) {
+                    var mainRecURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipe}`;
+
+                    const response = await fetch(mainRecURL);
+                    const data = await response.json();
+                    // Check if the category is dessert
+                    if (mealOptions.includes(data.meals[0].strCategory)) {
+                        return data.meals[0];
+                        // console.log( data.meals[0]);
+                    }
+                });
+
+                // Wait for all promises to resolve
+                return Promise.all(fetchPromises);
+            })
+            .then(function (mains) {
+                // Filter out undefined values and add to dessertRecipes
+                mainsRecipes.push(...mains.filter(recipe => recipe !== undefined));
+                // console.log("Mains Recipes:", mainsRecipes);
+                callback();
             });
-
-        // fetch(recipeQueryURL3)
-        //     .then(function (response) {
-        //         return response.json();
-        //     })
-        //     .then(function (data) {
-        //         console.log(data);
-
-        //         if (dessertOption.includes(data.meals[0].strCategory)) {
-        //             var meal3 = data.meals[0];
-        //             var mealCategory = meal3.strCategory;
-        //             console.log(mealCategory);
-        //             var mealArea = meal3.strArea;
-
-        //             $('#dessert').find('.save-button').attr('data-meal-id', meal3.idMeal);
-
-
-        //             $('#dessert').find('.meal-thumb').remove();
-        //             $('#dessert').find('#recipe-header').text('');
-
-        //             $('#dessert').prepend(`<img class="meal-thumb" src="${meal3.strMealThumb}" alt="${meal3.strMeal}">`);
-        //             $('#dessert').find('#recipe-header').text(meal3.strMeal);
-
-        //             $('#dessert').find('#location').text(mealArea);
-        //             // $('#dessert').find('#category').text(mealCategory);
-
-        //             if (mealOptions.includes(mealCategory)) {
-        //                 console.log('hello');
-        //             } else {
-        //                 $('#error-message').text("No meal found for the dessert");
-        //                 $('.error-container').show();
-        //             }
-        //         }
-        //     });
-
     }
-    
+
+
     function getDessert(ingredientName, callback) {
         var dessertIngURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
-     
+
         fetch(dessertIngURL)
             .then(function (response) {
                 return response.json();
             })
             .then(function (data) {
                 var dessertIDs = [];
-    
+
                 for (let i = 0; i < data.meals.length; i++) {
                     const meal = data.meals[i];
                     dessertIDs.push(meal.idMeal);
                 }
-    
+
                 // Map each fetch request to a promise
                 var fetchPromises = dessertIDs.map(async function (recipe) {
                     var dessertRecURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipe}`;
-    
+
                     const response = await fetch(dessertRecURL);
                     const data = await response.json();
                     // Check if the category is dessert
@@ -197,41 +186,57 @@ $(document).ready(function () {
                         return data.meals[0];
                     }
                 });
-    
+
                 // Wait for all promises to resolve
                 return Promise.all(fetchPromises);
             })
             .then(function (desserts) {
                 // Filter out undefined values and add to dessertRecipes
                 dessertRecipes.push(...desserts.filter(recipe => recipe !== undefined));
-                console.log(dessertRecipes);
-                callback(); 
+                // console.log(dessertRecipes);
+                callback();
             });
     }
 
     function displayMeals() {
-        var imageEl = $('<img class="meal-thumb">');
-
-        var randomIndex = Math.floor(Math.random() * dessertRecipes.length);
-        var randomDessert = dessertRecipes[randomIndex];
-        console.log(randomDessert);
-
-        $('#dessert').find('.save-button').attr('data-meal-id', randomDessert.idMeal);
-        // Clear existing images and text for main section
-        $('#dessert').find('.meal-thumb').remove();
-        $('#dessert').find('#recipe-header').text('');
-        // updating HTML
-        var dessertImage = imageEl.attr({
-            src: randomDessert.strMealThumb,
-            alt: randomDessert.strMeal,
-        })
-        $("#dessert").prepend(dessertImage);
-        $("#dessert #recipe-header").text(randomDessert.strMeal);
-        $("#dessert #location").text(randomDessert.strArea);
-        $("#dessert #category").text(randomDessert.strCategory);
-    }
-
+     
+        // Display main
+        var randomMain = mainsRecipes[Math.floor(Math.random() * mainsRecipes.length)];
+        console.log('random main: ', randomMain);
+        if (randomMain) {
+            $('#main').find('.save-button').attr('data-meal-id', randomMain.idMeal);
+            $('#main').find('.meal-thumb').remove();
+            $('#main').find('#recipe-header').text('');
+            var mainImage = $('<img class="meal-thumb">').attr({
+                src: randomMain.strMealThumb,
+                alt: randomMain.strMeal,
+            });
+            $("#main").prepend(mainImage);
+            $("#main #recipe-header").text(randomMain.strMeal);
+            $("#main #location").text(randomMain.strArea);
+            $("#main #category").text(randomMain.strCategory);
+        }
     
+        // Display dessert
+        var randomDessert = dessertRecipes[Math.floor(Math.random() * dessertRecipes.length)];
+        if (randomDessert) {
+            $('#dessert').find('.save-button').attr('data-meal-id', randomDessert.idMeal);
+            $('#dessert').find('.meal-thumb').remove();
+            $('#dessert').find('#recipe-header').text('');
+            var dessertImage = $('<img class="meal-thumb">').attr({
+                src: randomDessert.strMealThumb,
+                alt: randomDessert.strMeal,
+            });
+            $("#dessert").prepend(dessertImage);
+            $("#dessert #recipe-header").text(randomDessert.strMeal);
+            $("#dessert #location").text(randomDessert.strArea);
+            $("#dessert #category").text(randomDessert.strCategory);
+        }
+    }
+    
+    
+
+
 
 
 
@@ -269,36 +274,29 @@ $(document).ready(function () {
         event.preventDefault();
         var inputValue = $('#form-input').val().trim();
         var errorMsg = $('#error-message');
-
+    
         if (inputValue !== "") {
             errorMsg.text("");
-            getMeals(inputValue, function (meals) {
-                if (meals && meals.length >= 3) { // Changed condition to check for at least three meals
-                    var randomIndexes = [];
-                    while (randomIndexes.length < 3) { // Generate three unique random indexes
-                        var randomIndex = Math.floor(Math.random() * meals.length);
-                        if (!randomIndexes.includes(randomIndex)) {
-                            randomIndexes.push(randomIndex);
-                        }
-                    }
-                    var starterID = meals[randomIndexes[0]].idMeal;
-                    var mainID = meals[randomIndexes[1]].idMeal;
-                    var dessertID = meals[randomIndexes[2]].idMeal;
-                    getRecipe(starterID, mainID, dessertID);
-                } else {
-                    errorMsg.text("Not enough meals found with the provided ingredient");
-                }
+    
+            // Call getMeals first
+            getMeals(inputValue, function(meals) {
+                // Call other functions after getMeals completes
+                getDrink(inputValue);
+                getDessert(inputValue, function () {
+                    displayMeals();
+                });
+                getMain(inputValue, function () {
+                    displayMeals();
+                });
             });
-            getDrink(inputValue);
-            getDessert(inputValue, function() {
-                displayMeals();
-            });
+    
             $('#form-input').val("");
             $('#recipe-grid').removeClass('hide');
         } else {
             errorMsg.text("Please enter an ingredient");
         }
     });
+    
 
 
 
@@ -309,13 +307,13 @@ $(document).ready(function () {
         $("#recipeModal").dialog("open");
     });
 
- // Use class selector to target all save buttons
-$(".save-button").on('click', function (event) {
-    event.preventDefault();
-    // Log the data attribute of the clicked button
-    var mealId = $(this).attr('data-meal-id');
-    console.log("Meal ID:", mealId);
-});
+    // Use class selector to target all save buttons
+    $(".save-button").on('click', function (event) {
+        event.preventDefault();
+        // Log the data attribute of the clicked button
+        var mealId = $(this).attr('data-meal-id');
+        console.log("Meal ID:", mealId);
+    });
 
     // Initialize jQuery UI dialog
     $("#recipeModal").dialog({
