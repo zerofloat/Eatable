@@ -20,94 +20,220 @@ $(document).ready(function () {
     var drinkImg;
     var drinkQueryURL;
     var drinkInstr;
+    var mainsRecipes = [];
+    var starterRecipes = [];
+    var dessertRecipes = [];
+    var mealOptions = [
+        'Beef',
+        'Chicken',
+        'Vegan',
+        'Lamb',
+        'Pasta',
+        'Pork',
+        'Seafood',
+        'Vegetarian',
+        'Goat',
+        'Miscellaneous',
+        'Side',
+        'Breakfast',
+        'Starter'
+
+    ];
+    var savedMeals = [];
+
+    console.log(savedMeals);
+
 
     function getMeals(ingredientName, callBack) {
-        console.log(ingredientName);
+        // console.log(ingredientName);
         mealQueryURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
         fetch(mealQueryURL)
             .then(function (response) {
                 return response.json();
             })
             .then(function (data) {
-                console.log(data);
-                var randomMeals = [];
-                var sectionIds = ['starter', 'main'];
+                // console.log(data);
+                // Pass the array of meals to the callback function
+                callBack(data.meals);
+            });
+    }
 
-                // Clear existing images
-                $('.meal-thumb').remove();
+    function getStarter(ingredientName, callback) {
+        var starterIngURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
 
-                // Clear existing meal names
-                $('.recipe-header').remove();
+        fetch(starterIngURL)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                var starterIDs = [];
 
-                // Clear existing meal names
-                $('.recipe-description').remove();
-
-                // Generate two random indices
-                var randomIndex1 = Math.floor(Math.random() * data.meals.length);
-                var randomIndex2 = Math.floor(Math.random() * data.meals.length);
-                // Make sure the two indices are not the same
-                while (randomIndex2 === randomIndex1) {
-                    randomIndex2 = Math.floor(Math.random() * data.meals.length);
+                for (let i = 0; i < data.meals.length; i++) {
+                    const meal = data.meals[i];
+                    starterIDs.push(meal.idMeal);
                 }
-                // Retrieve the meals at the random indices
-                randomMeals.push(data.meals[randomIndex1]);
-                randomMeals.push(data.meals[randomIndex2]);
-                console.log(randomMeals[0]);
 
-                // Add the image element to the specified section and set the src attribute
-                $('#starter').prepend(`<img class="meal-thumb" src="${randomMeals[0].strMealThumb}" alt="${randomMeals[0].strMeal}">`);
-                $('#main').prepend(`<img class="meal-thumb" src="${randomMeals[1].strMealThumb}" alt="${randomMeals[1].strMeal}">`);
+                // Map each fetch request to a promise
+                var fetchPromises = starterIDs.map(async function (recipe) {
+                    var starterRecURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipe}`;
 
-                // Add meal name to the specified section 
-                // $('#starter'  + ' .container').prepend(`<h4 class="recipe-header"> ${randomMeals[0].strMeal} </h4>`);
-                $('#starter').find('#recipe-header').text(randomMeals[0].strMeal);
-                $('#main').find('#recipe-header').text(randomMeals[1].strMeal);
-                // $('#main' + ' .container').prepend(`<h4 class="recipe-header"> ${randomMeals[1].strMeal} </h4>`);
+                    const response = await fetch(starterRecURL);
+                    const data = await response.json();
+                    // Check if the category is dessert
+                    if (mealOptions.includes(data.meals[0].strCategory)) {
+                        return data.meals[0];
+                        // console.log( data.meals[0]);
+                    }
+                });
 
-
-                callBack(randomMeals[0].idMeal, randomMeals[1].idMeal);
-
+                // Wait for all promises to resolve
+                return Promise.all(fetchPromises);
             })
+            .then(function (mains) {
+                // Filter out undefined values and add to dessertRecipes
+                starterRecipes.push(...mains.filter(recipe => recipe !== undefined));
+                // console.log("Mains Recipes:", mainsRecipes);
+                callback();
+            });
     }
 
 
-    // TODO: Get recipeID to return the matching ingredients
-    function getRecipe(starterID, mainID) {
-        recipeQueryURL1 = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${starterID}`;
-        recipeQueryURL2 = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mainID}`;
 
-        fetch(recipeQueryURL1)
+
+    function getMain(ingredientName, callback) {
+        var mainIngURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
+
+        fetch(mainIngURL)
             .then(function (response) {
                 return response.json();
             })
             .then(function (data) {
-                console.log(data.meals[0]);
-                $('#starter').find('#location').text(data.meals[0].strArea);
-                $('#starter').find('#category').text(data.meals[0].strCategory);
+                var mainsIDs = [];
 
-                // Set modal content
-                $('#recipeModal').html(`
-            <img src="${data.meals[0].strMealThumb}" alt="${data.meals[0].strMeal}">
-            <p>${data.meals[0].strInstructions}</p>
-        `);
+                for (let i = 0; i < data.meals.length; i++) {
+                    const meal = data.meals[i];
+                    mainsIDs.push(meal.idMeal);
+                }
 
+                // Map each fetch request to a promise
+                var fetchPromises = mainsIDs.map(async function (recipe) {
+                    var mainRecURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipe}`;
+
+                    const response = await fetch(mainRecURL);
+                    const data = await response.json();
+                    // Check if the category is dessert
+                    if (mealOptions.includes(data.meals[0].strCategory)) {
+                        return data.meals[0];
+                        // console.log( data.meals[0]);
+                    }
+                });
+
+                // Wait for all promises to resolve
+                return Promise.all(fetchPromises);
+            })
+            .then(function (mains) {
+                // Filter out undefined values and add to dessertRecipes
+                mainsRecipes.push(...mains.filter(recipe => recipe !== undefined));
+                // console.log("Mains Recipes:", mainsRecipes);
+                callback();
             });
+    }
 
-        fetch(recipeQueryURL2)
+
+    function getDessert(ingredientName, callback) {
+        var dessertIngURL = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
+
+        fetch(dessertIngURL)
             .then(function (response) {
                 return response.json();
             })
             .then(function (data) {
-                console.log(data);
-                $('#main').find('#location').text(data.meals[0].strArea);
-                $('#main').find('#category').text(data.meals[0].strCategory);
+                var dessertIDs = [];
+
+                for (let i = 0; i < data.meals.length; i++) {
+                    const meal = data.meals[i];
+                    dessertIDs.push(meal.idMeal);
+                }
+
+                // Map each fetch request to a promise
+                var fetchPromises = dessertIDs.map(async function (recipe) {
+                    var dessertRecURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipe}`;
+
+                    const response = await fetch(dessertRecURL);
+                    const data = await response.json();
+                    // Check if the category is dessert
+                    if (data.meals[0].strCategory === "Dessert") {
+                        return data.meals[0];
+                    }
+                });
+
+                // Wait for all promises to resolve
+                return Promise.all(fetchPromises);
+            })
+            .then(function (desserts) {
+                // Filter out undefined values and add to dessertRecipes
+                dessertRecipes.push(...desserts.filter(recipe => recipe !== undefined));
+                // console.log(dessertRecipes);
+                callback();
             });
     }
 
+    function displayMeals() {
+
+        // Display starter
+        var randomStarter = starterRecipes[Math.floor(Math.random() * starterRecipes.length)];
+        console.log('random starter ', randomStarter);
+        if (randomStarter) {
+            $('#starter').find('.save-button').attr('data-meal-id', randomStarter.idMeal);
+            $('#starter').find('.meal-thumb').remove();
+            $('#starter').find('#recipe-header').text('');
+            var starterImage = $('<img class="meal-thumb">').attr({
+                src: randomStarter.strMealThumb,
+                alt: randomStarter.strMeal,
+            });
+            $("#starter").prepend(starterImage);
+            $("#starter #recipe-header").text(randomStarter.strMeal);
+            $("#starter #location").text(randomStarter.strArea);
+
+
+        }
+
+        // Display main
+        var randomMain = mainsRecipes[Math.floor(Math.random() * mainsRecipes.length)];
+        console.log('random main: ', randomMain);
+        if (randomMain) {
+            $('#main').find('.save-button').attr('data-meal-id', randomMain.idMeal);
+            $('#main').find('.meal-thumb').remove();
+            $('#main').find('#recipe-header').text('');
+            var mainImage = $('<img class="meal-thumb">').attr({
+                src: randomMain.strMealThumb,
+                alt: randomMain.strMeal,
+            });
+            $("#main").prepend(mainImage);
+            $("#main #recipe-header").text(randomMain.strMeal);
+            $("#main #location").text(randomMain.strArea);
+        }
+
+        // Display dessert
+        var randomDessert = dessertRecipes[Math.floor(Math.random() * dessertRecipes.length)];
+        if (randomDessert) {
+            $('#dessert').find('.save-button').attr('data-meal-id', randomDessert.idMeal);
+            $('#dessert').find('.meal-thumb').remove();
+            $('#dessert').find('#recipe-header').text('');
+            var dessertImage = $('<img class="meal-thumb">').attr({
+                src: randomDessert.strMealThumb,
+                alt: randomDessert.strMeal,
+            });
+            $("#dessert").prepend(dessertImage);
+            $("#dessert #recipe-header").text(randomDessert.strMeal);
+            $("#dessert #location").text(randomDessert.strArea);
+        }
+
+
+    }
 
 
     function getDrink(ingredientName) {
-
 
         drinkQueryURL = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
 
@@ -134,58 +260,92 @@ $(document).ready(function () {
                 $('#drink').prepend(drinkImg);
                 // add fetched recipe title to title element
                 $('#drink #recipe-header').text(randomDrink.strDrink);
-                
-                
-                // }
-                
+                $('#drink').find('#location').text(randomDrink.mealArea);
+                $('#drink').find('#category').text(randomDrink.mealCategory);
+
             })
-            .catch(function(error) {
-                console.log("Error: ", error);
-                console.log("no match in API!");
-                // consider letting the user know that no record were found --> updating DOM content 
-                
-            });
-
-
 
     }
 
-
-    // Attach a click event listener to the search button to trigger the getRecipe function
-
-    // Attach a click event listener to the search button to trigger the getRecipe function
+    // Attach a click event listener to the search button to trigger the getMeals function
     $("#search-button").on('click', function (event) {
         event.preventDefault();
         var inputValue = $('#form-input').val().trim();
         var errorMsg = $('#error-message');
 
-        if (inputValue !== "") { // Check if input is not empty
+        if (inputValue !== "") {
             errorMsg.text("");
-            getMeals(inputValue, getRecipe);
-            getDrink(inputValue);
-            $('#form-input').val("");
 
-            // Remove the "hide" class from the recipe grid
+            // Clear previously saved buttons
+            $(".save-button").removeClass('saved-button');
+            $(".save-button").text('Save');
+
+            // Call getMeals first
+            getMeals(inputValue, function (meals) {
+                // Call other functions after getMeals completes
+                getDrink(inputValue);
+                getDessert(inputValue, function () {
+                    displayMeals();
+                });
+                getMain(inputValue, function () {
+                    displayMeals();
+                });
+                getStarter(inputValue, function () {
+                    displayMeals();
+                });
+            });
+
+            $('#form-input').val("");
             $('#recipe-grid').removeClass('hide');
         } else {
-            errorMsg.text("Input value is empty. Please enter an ingredient.");
+            errorMsg.text("Please enter an ingredient");
         }
     });
-
-    $("#save-button").on('click', function (event) {
-        event.preventDefault();
-
-        console.log('save clicked');
-
-
-    });
-
 
     // Attach a click event listener to the "View Recipe" button
     $("#view-recipe").on('click', function (event) {
         event.preventDefault();
         // Show the jQuery UI dialog
         $("#recipeModal").dialog("open");
+    });
+
+    // Use class selector to target all save buttons
+    $(".save-button").on('click', function (event) {
+        event.preventDefault();
+        // Log the data attribute of the clicked button
+        var mealId = $(this).attr('data-meal-id');
+
+        // Check the current text of the button
+        if ($(this).text() === 'Save') {
+            // If current text is "Save", change it to "Saved"
+            $(this).text('Saved');
+            $(this).addClass('saved-button');
+            savedMeals.push(mealId);
+            console.log("Meal ID:", mealId, "saved");
+            console.log(savedMeals);
+       
+            // Save the updated savedMeals array to local storage
+        localStorage.setItem('savedMeals', JSON.stringify(savedMeals));
+        } else {
+            // If current text is "Saved", change it back to "Save"
+            $(this).text('Save');
+            $(this).removeClass('saved-button');
+            console.log("Meal ID:", mealId, "unsaved");
+
+            // Find the index of mealId in savedMeals array
+            var index = savedMeals.indexOf(mealId);
+            //if value is not found -1 is always returned so make sure index is != -1 to continue
+            if (index !== -1) {
+                // Remove the mealId from the savedMeals array, 1 is the number of elements to remove starting from index
+                savedMeals.splice(index, 1);
+                console.log("Meal ID:", mealId, "removed from savedMeals");
+                console.log(savedMeals);
+                // Save the updated savedMeals array to local storage
+            localStorage.setItem('savedMeals', JSON.stringify(savedMeals));
+            } else {
+                console.log("Meal ID:", mealId, "not found in savedMeals");
+            }
+        }
     });
 
     // Initialize jQuery UI dialog
