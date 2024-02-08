@@ -159,6 +159,39 @@ section {
     display: none !important;
 }
 
+/* myRecipes page */
+.saved-recipe-grid {
+    margin: 40px 0;
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+}
+.recipe-cards {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.recipe-cards .card {
+
+    border: none !important;
+}
+
+.recipe-cards .card .card-body {
+    border-radius: 0 0 5px 5px !important;
+    background-color: var(--secondary-btn-bg);
+}
+
+.recipe-cards .card .card-body .card-text {
+    margin-bottom: 8px !important;
+}
+
+.card-h4 {
+    margin-bottom: 20px;
+}
+
+
 /* footer */
 
 footer {
