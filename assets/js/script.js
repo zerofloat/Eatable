@@ -40,6 +40,13 @@ $(document).ready(function () {
 
     ];
     var savedMeals = [];
+    var randomDrinkOptions = [
+        'coffee',
+        'lemon',
+        'orange',
+        'strawberries',
+
+    ]
 
     console.log(savedMeals);
 
@@ -240,18 +247,15 @@ $(document).ready(function () {
         fetch(drinkQueryURL)
             .then(function (response) {
                 console.log("Response Object: ", response)
-                /*if (response.json() === null) {
-                    console.log("no match in API!");
-                    
-                } else {
-                    return response.json();
-                }
-                */
                return response.json();
             })
             .then(function (data) {
                 console.log("Data: ", data);
+                $('#view-recipe').text('V Recipe');
                 $('#drink').children('img').remove();
+                $('#drink').children('p').val('');
+                $('#drink #recipe-header').empty();
+                $('#drink #location').empty();
                 //randomly choose between fetched recipes
                 var randomDrink = data.drinks[Math.floor(Math.random() * data.drinks.length)];
                 console.log(randomDrink);
@@ -264,8 +268,25 @@ $(document).ready(function () {
                 $('#drink').find('#category').text(randomDrink.mealCategory);
 
             })
+            .catch(function(error) {
+                console.log("Error:", error);
+                if (error) {
+                    $('#drink').children('img').remove();
+                    $('#drink #recipe-header').empty();
+                    $('#drink #location').empty();
+                    $('#drink #location').text("Please choose another ingredient to find a matching cocktail or click the button below for a random drink!");
+                    $('#view-recipe').text('Random Recipe');
+                    $('#view-recipe').on('click', function (event) {
+                     event.preventDefault();
+                     var randomDrinkChoice = randomDrinkOptions[Math.floor(Math.random() * randomDrinkOptions.length)];
 
-    }
+                    })
+                }
+            
+                }
+)}
+
+
 
     // Attach a click event listener to the search button to trigger the getMeals function
     $("#search-button").on('click', function (event) {
