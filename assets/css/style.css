@@ -19,6 +19,18 @@ p {
 }
 
 /* body */
+*:disabled {
+    background-color: grey !important;
+}
+
+.ui-dialog-content .ui-widget-content {
+    display: flex !important;
+}
+
+#modal-recipe ol li{
+margin: 10px 0 !important;
+}
+
 
 body {
     margin: 30px;
@@ -207,6 +219,12 @@ footer {
 footer a {
     color: #1e1e1e;
     font-size: 20px;
+}
+
+.recipeInfo {
+    display: flex;
+    flex-direction: row;
+    column-gap: 20px;
 }
 
 @media only screen and (max-width: 775px) {
