@@ -2,9 +2,9 @@
 $(document).ready(function () {
     console.log('JS loaded');
 
-     // Call getSavedRecipes when the DOM is ready
-     getSavedRecipes();
-     
+    // Call getSavedRecipes when the DOM is ready
+    getSavedRecipes();
+
     var mealQueryURL;
     var recipeQueryURL1;
     var recipeQueryURL2;
@@ -26,6 +26,7 @@ $(document).ready(function () {
     var mainsRecipes = [];
     var starterRecipes = [];
     var dessertRecipes = [];
+    var drinksRecipes = [];
     var mealOptions = [
         'Beef',
         'Chicken',
@@ -43,7 +44,7 @@ $(document).ready(function () {
 
     ];
     var savedMeals = [];
-
+   
     console.log(savedMeals);
 
 
@@ -181,6 +182,52 @@ $(document).ready(function () {
             });
     }
 
+
+
+    function getDrink(ingredientName, callback) {
+
+        var drinkQueryURL = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
+
+        fetch(drinkQueryURL)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                console.log(data);
+                var drinkIDs = [];
+
+                for (let i = 0; i < data.drinks.length; i++) {
+                    const drink = data.drinks[i];
+                    // console.log(drink);
+                    drinkIDs.push(drink.idDrink);
+                }
+
+                // Map each fetch request to a promise
+                var fetchPromises = drinkIDs.map(async function (recipe) {
+                    var drinkRecURL = `https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${recipe}`;
+
+                    const response = await fetch(drinkRecURL);
+                    const data = await response.json();
+
+                    // console.log(data.drinks[0]);
+                    return data.drinks[0];
+
+                });
+
+                // Wait for all promises to resolve
+                return Promise.all(fetchPromises);
+            })
+            .then(function (drinks) {
+                // Filter out undefined values and add to dessertRecipes
+                drinksRecipes.push(...drinks.filter(recipe => recipe !== undefined));
+                // console.log(dessertRecipes);
+                callback();
+            });
+
+    }
+
+
+
     function displayMeals() {
 
         // Display starter
@@ -201,8 +248,20 @@ $(document).ready(function () {
             $("#starter #recipe-header").text(randomStarter.strMeal);
             $("#starter #location").text(randomStarter.strArea);
 
+            var viewRecipeButton = $('#starter').find('#view-recipe');
+
+            if (randomStarter.strYoutube.trim() !== '' || randomStarter.strSource.trim() !== '') {
+                viewRecipeButton.attr({
+                    'href': randomStarter.strYoutube.trim() !== '' ? randomStarter.strYoutube : randomStarter.strSource,
+                    'target': '_blank'
+                });
+            } else {
+                viewRecipeButton.text('Coming Soon').prop('disabled', true);
+            }
+
 
         }
+
 
         // Display main
         var randomMain = mainsRecipes[Math.floor(Math.random() * mainsRecipes.length)];
@@ -221,6 +280,20 @@ $(document).ready(function () {
             $("#main").prepend(mainImage);
             $("#main #recipe-header").text(randomMain.strMeal);
             $("#main #location").text(randomMain.strArea);
+
+
+            var viewRecipeButton = $('#main').find('#view-recipe');
+
+            if (randomMain.strYoutube.trim() !== '' || randomMain.strSource.trim() !== '') {
+                viewRecipeButton.attr({
+                    'href': randomMain.strYoutube.trim() !== '' ? randomMain.strYoutube : randomMain.strSource,
+                    'target': '_blank'
+                });
+            } else {
+                viewRecipeButton.text('Coming Soon').prop('disabled', true);
+            }
+
+
         }
 
         // Display dessert
@@ -239,36 +312,81 @@ $(document).ready(function () {
             $("#dessert").prepend(dessertImage);
             $("#dessert #recipe-header").text(randomDessert.strMeal);
             $("#dessert #location").text(randomDessert.strArea);
+
+            var viewRecipeButton = $('#dessert').find('#view-recipe');
+
+            if (randomDessert.strYoutube.trim() !== '' || randomDessert.strSource.trim() !== '') {
+                viewRecipeButton.attr({
+                    'href': randomDessert.strYoutube.trim() !== '' ? randomDessert.strYoutube : randomDessert.strSource,
+                    'target': '_blank'
+                });
+            } else {
+                viewRecipeButton.text('Coming Soon').prop('disabled', true);
+            }
+
         }
+        // Display drinks
+
+        var randomDrink = drinksRecipes[Math.floor(Math.random() * drinksRecipes.length)];
+        console.log(randomDrink);
+        if (randomDrink) {
+            $('#drink').find('.save-button').attr({
+                'data-meal-id': randomDrink.idDrink
+            });
+            $('#drink').find('.drink-thumb').remove();
+            $('#drink').find('#recipe-header').text('');
+            var drinkImage = $('<img class="drink-thumb">').attr({
+                src: randomDrink.strDrinkThumb,
+                alt: randomDrink.strDrink,
+            });
+            $("#drink").prepend(drinkImage);
+            $("#drink #recipe-header").text(randomDrink.strDrink);
+            $("#drink #location").text(randomDrink.strAlcoholic);
+
+            var viewRecipeButton = $('#drink').find('#view-recipe');
+
+    
+            var instructions = randomDrink.strInstructions;
+            var steps = instructions.split(/\.\s*/); // Split instructions by full stop with optional following whitespace
+
+            // Format each step with a numbered list
+            var formattedInstructions = '<ol>';
+            for (var i = 0; i < steps.length; i++) {
+                if (steps[i].trim() !== '') { // Exclude empty lines
+                    formattedInstructions += '<li>' + steps[i].trim() + '</li>';
+                }
+            }
+            formattedInstructions += '</ol>';
+            $('#modal-image').attr('src', randomDrink.strDrinkThumb);
+            $('#modal-image').attr('style', 'width: 350px;');
+            $("#dialog").dialog("option", "title", `${randomDrink.strDrink} - ${randomDrink.strAlcoholic} `);
+            $('#modal-recipe').html(formattedInstructions); // Set the formatted instructions
 
 
+            $('#modal-ing').empty(); // Clear previous ingredients (if any)
+
+            for (var i = 1; i <= 15; i++) { // Loop through each ingredient (assuming maximum 15 ingredients)
+                var ingredient = randomDrink['strIngredient' + i];
+                if (ingredient !== null && ingredient.trim() !== '') { // Check if ingredient exists and is not empty
+                    $('#modal-ing').append('<b>' + i + '.</b> ' + ingredient + '<br>'); // Append the ingredient with its number to the modal paragraph
+                }
+            }
+
+        }
     }
 
+    $("#dialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: '40%'
+    });
 
-    function getDrink(ingredientName) {
+    $('#drink #view-recipe').on('click', function() {
+      console.log('hello');
+        $("#dialog").dialog("open");
+    });
 
-        drinkQueryURL = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
 
-        fetch(drinkQueryURL)
-            .then(function (response) {
-                return response.json();
-            })
-            .then(function (data) {
-                $('#drink').children('img').remove();
-                //randomly choose between fetched recipes
-                var randomDrink = data.drinks[Math.floor(Math.random() * data.drinks.length)];
-                console.log(randomDrink);
-                //pull img from fetched data and set as source for new img element
-                drinkImg = $('<img>').attr('src', randomDrink.strDrinkThumb);
-                $('#drink').prepend(drinkImg);
-                // add fetched recipe title to title element
-                $('#drink #recipe-header').text(randomDrink.strDrink);
-                $('#drink').find('#location').text(randomDrink.mealArea);
-                $('#drink').find('#category').text(randomDrink.mealCategory);
-
-            })
-
-    }
 
     // Attach a click event listener to the search button to trigger the getMeals function
     $("#search-button").on('click', function (event) {
@@ -296,6 +414,9 @@ $(document).ready(function () {
                 getStarter(inputValue, function () {
                     displayMeals();
                 });
+                getDrink(inputValue, function () {
+                    displayMeals();
+                });
             });
 
             $('#form-input').val("");
@@ -305,12 +426,17 @@ $(document).ready(function () {
         }
     });
 
-    // Attach a click event listener to the "View Recipe" button
-    $("#view-recipe").on('click', function (event) {
+
+
+    // Use class selector to target all save buttons
+    $("#drink .save-button").on('click', function (event) {
         event.preventDefault();
-        // Show the jQuery UI dialog
-        $("#recipeModal").dialog("open");
+
+        console.log('hello');
     });
+
+
+
 
     // Use class selector to target all save buttons
     $(".save-button").on('click', function (event) {
@@ -355,111 +481,93 @@ $(document).ready(function () {
         }
     });
 
-    // Initialize jQuery UI dialog
-    $("#recipeModal").dialog({
-        autoOpen: false, // Dialog is initially hidden
-        modal: true, // Make it modal (overlay background)
-        width: "60%", // Set width as needed
-        buttons: {
-            "Close": function () {
-                $(this).dialog("close");
-            }
-        }
-    });
 
     function getSavedRecipes(params) {
-        var savedRecipes = JSON.parse(localStorage.getItem("savedMeals"));
-        // console.log(savedRecipes[0].mealCat);
-        console.log(savedRecipes);
-
-        for (let k = 0; k < savedRecipes.length; k++) {
-            const element = savedRecipes[k];
-            console.log(element);
-
-
-            savedQueryURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${element.mealId}`;
-
-            fetch(savedQueryURL)
-                .then(function (response) {
-                    return response.json();
-                })
-                .then(function (data) {
-                    console.log(data);
-
-                    if (element.mealCat === "Dessert") {
-                        console.log('hello', element.mealId);
-
-                        $('.my-desserts .card-h4').text('My Desserts');
-
-                        $('.my-desserts .recipe-cards').append(`
+        var savedRecipes = localStorage.getItem("savedMeals");
     
-                        <div class="card" style="width: 18rem;">
-                            <img class="card-img-top" src="${data.meals[0].strMealThumb}" alt="Card image cap">
-                            <div class="card-body">
-                                <h5 class="card-title">${data.meals[0].strMeal}</h5>
-                                <p class="card-text">${data.meals[0].strArea}</p>
-                                ${
-                                    //check if data.meals[0].strYoutube is not an empty string. If it's not empty, we use it as the link for the "View Recipe" button
-                                    data.meals[0].strYoutube !== "" ? 
-                                    `<a href="${data.meals[0].strYoutube}" target="_blank" class="btn btn-primary">View Recipe</a>` :
-                                    (data.meals[0].strSource !== "" ?
+        // Check if savedRecipes is truthy
+        if (savedRecipes) {
+            savedRecipes = JSON.parse(savedRecipes);
+    
+            for (let k = 0; k < savedRecipes.length; k++) {
+                const element = savedRecipes[k];
+                console.log(element);
+    
+                savedQueryURL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${element.mealId}`;
+    
+                fetch(savedQueryURL)
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        console.log(data);
+    
+                        if (element.mealCat === "Dessert") {
+                            console.log('hello', element.mealId);
+    
+                            $('.my-desserts .card-h4').text('My Desserts');
+    
+                            $('.my-desserts .recipe-cards').append(`
+                                <div class="card" style="width: 18rem;">
+                                    <img class="card-img-top" src="${data.meals[0].strMealThumb}" alt="Card image cap">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${data.meals[0].strMeal}</h5>
+                                        <p class="card-text">${data.meals[0].strArea}</p>
+                                        ${
+                            //check if data.meals[0].strYoutube is not an empty string. If it's not empty, we use it as the link for the "View Recipe" button
+                            data.meals[0].strYoutube !== "" ?
+                                `<a href="${data.meals[0].strYoutube}" target="_blank" class="btn btn-primary">View Recipe</a>` :
+                                (data.meals[0].strSource !== "" ?
                                     `<a href="${data.meals[0].strSource}" target="_blank" class="btn btn-primary">View Recipe</a>` :
                                     `<button class="btn btn-primary" disabled>Coming Soon</button>`)
-                                }
-                            </div>
-                        </div>
-                      
-                    `);
-
-                    } else if (element.mealCat === "Side" || element.mealCat === "Starter" || element.mealCat === "Miscellaneous"  || element.mealCat === "Breakfast"  ) {
-                        $('.my-starters .card-h4').text('My Starters');
-
-                        $('.my-starters .recipe-cards').append(`
-                        
-                        <div class="card" style="width: 18rem;">
-                            <img class="card-img-top" src="${data.meals[0].strMealThumb}" alt="${data.meals[0].strMealThumb}">
-                            <div class="card-body">
-                                <h5 class="card-title">${data.meals[0].strMeal}</h5>
-                                <p class="card-text">${data.meals[0].strArea}</p>
-                                ${
-                                    data.meals[0].strYoutube !== "" ? 
-                                    `<a href="${data.meals[0].strYoutube}" target="_blank" class="btn btn-primary">View Recipe</a>` :
-                                    (data.meals[0].strSource !== "" ?
+                            }
+                                    </div>
+                                </div>
+                            `);
+                        } else if (element.mealCat === "Side" || element.mealCat === "Starter" || element.mealCat === "Miscellaneous" || element.mealCat === "Breakfast") {
+                            $('.my-starters .card-h4').text('My Starters');
+    
+                            $('.my-starters .recipe-cards').append(`
+                                <div class="card" style="width: 18rem;">
+                                    <img class="card-img-top" src="${data.meals[0].strMealThumb}" alt="${data.meals[0].strMealThumb}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${data.meals[0].strMeal}</h5>
+                                        <p class="card-text">${data.meals[0].strArea}</p>
+                                        ${data.meals[0].strYoutube !== "" ?
+                                `<a href="${data.meals[0].strYoutube}" target="_blank" class="btn btn-primary">View Recipe</a>` :
+                                (data.meals[0].strSource !== "" ?
                                     `<a href="${data.meals[0].strSource}" target="_blank" class="btn btn-primary">View Recipe</a>` :
                                     `<button class="btn btn-primary" disabled>Coming Soon</button>`)
-                                }
-                            </div>
-                        </div>
-                    `);
-
-                    } else {
-                        $('.my-mains .card-h4').text('My Mains');
-
-                        $('.my-mains .recipe-cards').append(`
-
-                        <div class="card" style="width: 18rem;">
-                            <img class="card-img-top" src="${data.meals[0].strMealThumb}" alt="${data.meals[0].strMealThumb}">
-                            <div class="card-body">
-                                <h5 class="card-title">${data.meals[0].strMeal}</h5>
-                                <p class="card-text">${data.meals[0].strArea}</p>
-                                ${
-                                    data.meals[0].strYoutube !== "" ? 
-                                    `<a href="${data.meals[0].strYoutube}" target="_blank" class="btn btn-primary">View Recipe</a>` :
-                                    (data.meals[0].strSource !== "" ?
+                            }
+                                    </div>
+                                </div>
+                            `);
+                        } else {
+                            $('.my-mains .card-h4').text('My Mains');
+    
+                            $('.my-mains .recipe-cards').append(`
+                                <div class="card" style="width: 18rem;">
+                                    <img class="card-img-top" src="${data.meals[0].strMealThumb}" alt="${data.meals[0].strMealThumb}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${data.meals[0].strMeal}</h5>
+                                        <p class="card-text">${data.meals[0].strArea}</p>
+                                        ${data.meals[0].strYoutube !== "" ?
+                                `<a href="${data.meals[0].strYoutube}" target="_blank" class="btn btn-primary">View Recipe</a>` :
+                                (data.meals[0].strSource !== "" ?
                                     `<a href="${data.meals[0].strSource}" target="_blank" class="btn btn-primary">View Recipe</a>` :
                                     `<button class="btn btn-primary" disabled>Coming Soon</button>`)
-                                }
-                            </div>
-                        </div>
-                        </div>
-                    `);
-                    }
-                   
-
-                })
-
+                            }
+                                    </div>
+                                </div>
+                            `);
+                        }
+                    })
+            }
+        } else {
+            console.log("No saved recipes found.");
         }
     }
+    
 
     getSavedRecipes()
 
