@@ -43,13 +43,12 @@ $(document).ready(function () {
     var randomDrinkOptions = [
         'coffee',
         'lemon',
+        'lime',
+        'mint',
         'orange',
-        'strawberries',
-
     ]
 
     console.log(savedMeals);
-
 
     function getMeals(ingredientName, callBack) {
         // console.log(ingredientName);
@@ -239,7 +238,6 @@ $(document).ready(function () {
 
     }
 
-
     function getDrink(ingredientName) {
 
         drinkQueryURL = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientName}`;
@@ -247,19 +245,21 @@ $(document).ready(function () {
         fetch(drinkQueryURL)
             .then(function (response) {
                 console.log("Response Object: ", response)
-               return response.json();
+                return response.json();
             })
             .then(function (data) {
                 console.log("Data: ", data);
-                $('#view-recipe').text('V Recipe');
+                $('#view-recipe').text('View Recipe');
                 $('#drink').children('img').remove();
                 $('#drink').children('p').val('');
                 $('#drink #recipe-header').empty();
                 $('#drink #location').empty();
-                //randomly choose between fetched recipes
+                // randomly choose between fetched recipes
                 var randomDrink = data.drinks[Math.floor(Math.random() * data.drinks.length)];
-                console.log(randomDrink);
-                //pull img from fetched data and set as source for new img element
+                var drinkRecipeId = randomDrink.idDrink;
+                console.log(drinkRecipeId);
+                // console.log(randomDrink);
+                // pull img from fetched data and set as source for new img element
                 drinkImg = $('<img>').attr('src', randomDrink.strDrinkThumb);
                 $('#drink').prepend(drinkImg);
                 // add fetched recipe title to title element
@@ -268,24 +268,36 @@ $(document).ready(function () {
                 $('#drink').find('#category').text(randomDrink.mealCategory);
 
             })
-            .catch(function(error) {
+            // error handling if ingredient not present in any cocktail recipes
+            .catch(function (error) {
                 console.log("Error:", error);
                 if (error) {
                     $('#drink').children('img').remove();
                     $('#drink #recipe-header').empty();
                     $('#drink #location').empty();
-                    $('#drink #location').text("Please choose another ingredient to find a matching cocktail or click the button below for a random drink!");
-                    $('#view-recipe').text('Random Recipe');
-                    $('#view-recipe').on('click', function (event) {
-                     event.preventDefault();
-                     var randomDrinkChoice = randomDrinkOptions[Math.floor(Math.random() * randomDrinkOptions.length)];
+                    $('#drink #location').text("Matching recipe not found - here's something random instead!");
+                    // this.ready(getRandomDrink(randomDrinkOptions));
+                    getRandomDrink(randomDrinkOptions);
+                    // removeEventListener('click', getRandomDrink);
+                    // $('#drink #view-recipe').text('View Recipe');
 
-                    })
                 }
-            
-                }
-)}
 
+            }
+            )
+    }
+
+    function getRandomDrink(arr) {
+        // randomDrinkOptions.preventDefault();
+        var randomDrinkChoice = randomDrinkOptions[Math.floor(Math.random() * randomDrinkOptions.length)];
+        getDrink(randomDrinkChoice);
+        $('#drink #view-recipe').text('View Recipe');
+        // nested event listener to view recipe for random cocktail
+        $('#drink #view-recipe').on('click', function (event) {
+            console.log("view random recipe clicked");
+
+        })
+    }
 
 
     // Attach a click event listener to the search button to trigger the getMeals function
@@ -344,9 +356,9 @@ $(document).ready(function () {
             savedMeals.push(mealId);
             console.log("Meal ID:", mealId, "saved");
             console.log(savedMeals);
-       
+
             // Save the updated savedMeals array to local storage
-        localStorage.setItem('savedMeals', JSON.stringify(savedMeals));
+            localStorage.setItem('savedMeals', JSON.stringify(savedMeals));
         } else {
             // If current text is "Saved", change it back to "Save"
             $(this).text('Save');
@@ -362,7 +374,7 @@ $(document).ready(function () {
                 console.log("Meal ID:", mealId, "removed from savedMeals");
                 console.log(savedMeals);
                 // Save the updated savedMeals array to local storage
-            localStorage.setItem('savedMeals', JSON.stringify(savedMeals));
+                localStorage.setItem('savedMeals', JSON.stringify(savedMeals));
             } else {
                 console.log("Meal ID:", mealId, "not found in savedMeals");
             }
